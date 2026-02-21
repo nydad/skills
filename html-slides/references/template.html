@@ -1,0 +1,378 @@
+<!-- html-slides v1.0 | 2026-02-21 | Universal HTML Presentation Template -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Presentation Title</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* ── Reset ── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background:
+                radial-gradient(1200px 700px at 15% 10%, rgba(247, 231, 206, 0.06), rgba(0, 0, 0, 0) 55%),
+                radial-gradient(900px 600px at 85% 25%, rgba(167, 243, 208, 0.05), rgba(0, 0, 0, 0) 60%),
+                linear-gradient(160deg, #0C0F1E 0%, #0B1326 48%, #0A0D16 100%);
+            color: #EFF2FA;
+            overflow: hidden;
+            word-break: keep-all;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* ── Slide Container ── */
+        .slides { display: flex; transition: none; }
+
+        .slide {
+            min-width: 100vw; min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 3vh 5vw; background: transparent; box-sizing: border-box;
+            overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative;
+        }
+        .slide > * { flex-shrink: 0; }
+
+        /* ── Base Themes ── */
+        .slide.surface { background: #111422; }
+        .slide.light { background: #F0F4FF; color: #0C0F1E; }
+        .slide.light .sub { color: #3A4A6A; }
+        .slide.light .em { color: #1428A0; }
+
+        /* ── Section Themes (vivid, for divider slides) ── */
+        .slide.samsung { background: linear-gradient(135deg, #0A1060 0%, #1428A0 55%, #1A7AFC 100%); }
+        .slide.blue { background: #1428A0; }
+        .slide.navy { background: #0D1B5E; }
+        .slide.indigo { background: #2D1FA8; }
+        .slide.violet { background: #5B1FA8; }
+        .slide.rose { background: #A8194A; }
+        .slide.mint { background: #0A7A56; }
+        .slide.teal { background: #0A6E62; }
+        .slide.cyan { background: #0A5E82; }
+        .slide.amber { background: #A05C00; }
+        .slide.orange { background: #C04800; }
+
+        /* Section .sub brightness */
+        .slide.blue .sub, .slide.navy .sub, .slide.indigo .sub, .slide.violet .sub,
+        .slide.rose .sub, .slide.mint .sub, .slide.teal .sub, .slide.cyan .sub,
+        .slide.amber .sub, .slide.orange .sub, .slide.samsung .sub { color: rgba(255, 255, 255, 0.75); }
+
+        /* Section .em accent colors */
+        .slide.blue .em { color: #7AB8FF; }
+        .slide.navy .em { color: #7AB8FF; }
+        .slide.indigo .em { color: #A5B4FC; }
+        .slide.violet .em { color: #C4B5FD; }
+        .slide.rose .em { color: #FDA4AF; }
+        .slide.mint .em { color: #4EEDB4; }
+        .slide.teal .em { color: #4EEAB8; }
+        .slide.cyan .em { color: #38E8F8; }
+        .slide.amber .em { color: #FBCF60; }
+        .slide.orange .em { color: #FBCF80; }
+        .slide.samsung .em { color: #7AB8FF; }
+
+        /* ── In-Section Content Themes (dark tinted, for content slides within a section) ── */
+        .slide.in-blue { background: #0E1228; }
+        .slide.in-blue .em { color: #7AB8FF; }
+        .slide.in-indigo { background: #0F1030; }
+        .slide.in-indigo .em { color: #A5B4FC; }
+        .slide.in-violet { background: #130D28; }
+        .slide.in-violet .em { color: #C4B5FD; }
+        .slide.in-rose { background: #1A0A14; }
+        .slide.in-rose .em { color: #FDA4AF; }
+        .slide.in-mint { background: #081A14; }
+        .slide.in-mint .em { color: #4EEDB4; }
+        .slide.in-cyan { background: #081420; }
+        .slide.in-cyan .em { color: #38E8F8; }
+        .slide.in-amber { background: #1A1000; }
+        .slide.in-amber .em { color: #FBCF60; }
+        .slide.in-orange { background: #1A0E00; }
+        .slide.in-orange .em { color: #FBCF80; }
+        .slide.in-navy { background: #0A0E28; }
+        .slide.in-navy .em { color: #7AB8FF; }
+        .slide.in-teal { background: #081418; }
+        .slide.in-teal .em { color: #4EEAB8; }
+
+        /* ── Typography ── */
+        h1 { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 900; text-align: center; line-height: 1.1; letter-spacing: -0.03em; }
+        h2 { font-size: clamp(2.2rem, 4.5vw, 4rem); font-weight: 700; text-align: center; line-height: 1.15; letter-spacing: -0.02em; }
+        h3 { margin: 0; font-size: 1.28rem; font-weight: 800; letter-spacing: -0.015em; color: #E9EEF8; }
+        .sub { font-size: clamp(1.3rem, 2.2vw, 1.8rem); color: #99ABCA; margin-top: 1.5vh; text-align: center; line-height: 1.5; font-weight: 400; }
+        .em { color: #5FB3FF; }
+        .red { color: #FCA5A5; }
+        .green { color: #10E890; }
+        .yellow { color: #F2D7A1; }
+        .meta { margin-top: 2vh; font-size: 0.9rem; color: #3A4560; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        /* ── Comparison Cards (.comp) ── */
+        .comp { display: flex; gap: 8px; margin: 2vh 0; flex-wrap: nowrap; width: 100%; max-width: 900px; }
+        .comp-item {
+            padding: 28px 24px; text-align: center; background: rgba(255, 255, 255, 0.045); flex: 1; min-height: 140px;
+            border: 1px solid rgba(255, 255, 255, 0.07); border-top: 2px solid rgba(255, 255, 255, 0.12); border-radius: 16px;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;
+        }
+        .comp-item.on { background: #151C38; border-top-color: rgba(90, 160, 220, 0.35); }
+        .comp-item.green-on { background: rgba(167, 243, 208, 0.085); border-top-color: rgba(167, 243, 208, 0.26); border-color: rgba(167, 243, 208, 0.18); }
+        .comp-item.yellow-on { background: rgba(247, 231, 206, 0.115); border-top-color: rgba(247, 231, 206, 0.32); border-color: rgba(247, 231, 206, 0.22); }
+        .comp-item.red-on { background: rgba(252, 165, 165, 0.080); border-top-color: rgba(252, 165, 165, 0.25); border-color: rgba(252, 165, 165, 0.18); }
+        .comp-item .tag { font-size: 0.80rem; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(255, 255, 255, 0.36); font-weight: 500; }
+        .comp-item.on .tag { color: #7CA8D0; }
+        .comp-item.green-on .tag { color: #68B8A0; }
+        .comp-item.yellow-on .tag { color: #D0B870; }
+        .comp-item.red-on .tag { color: #D8A0A0; }
+        .comp-item p { font-size: clamp(1rem, 1.3vw, 1.25rem); font-weight: 600; line-height: 1.4; color: #D8E0F0; }
+
+        /* ── List ── */
+        .list { list-style: none; max-width: 80vw; width: 100%; margin: 0 auto; }
+        .list li { font-size: clamp(1.1rem, 1.8vw, 1.5rem); padding: 1.4vh 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #C8D4E8; font-weight: 400; line-height: 1.35; text-align: center; }
+        .list li:last-child { border-bottom: none; }
+        .list strong { color: #FFFFFF; font-weight: 700; }
+
+        /* ── Grid Cards (.grid) ── */
+        .grid { display: flex; gap: 8px; margin-top: 2vh; flex-wrap: nowrap; width: 100%; max-width: 900px; }
+        .grid-item {
+            padding: 24px 20px; text-align: center; background: #151A2E; flex: 1; min-height: 90px;
+            border-radius: 2px; border-top: 2px solid rgba(255, 255, 255, 0.06);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .grid-item .name { font-size: clamp(1rem, 1.3vw, 1.2rem); font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; color: #E0E6F0; }
+        .grid-item .desc { font-size: clamp(0.82rem, 1vw, 0.95rem); color: rgba(255, 255, 255, 0.45); font-weight: 400; line-height: 1.4; }
+
+        /* ── Code Block ── */
+        .code {
+            background: #0A0C18; border: 1px solid rgba(255, 255, 255, 0.06); padding: 1.5vh 2vw;
+            font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: clamp(0.82rem, 0.95vw, 0.92rem);
+            line-height: 1.6; max-width: 720px; width: 100%; margin: 1.5vh auto;
+            white-space: pre; color: #C8D4E8; text-align: left; border-radius: 2px;
+            max-height: 55vh; overflow-x: auto; overflow-y: auto;
+        }
+        .code .comment { color: #3A5070; }
+        .code .keyword { color: #C4B5FD; }
+        .code .string { color: #4EEDB4; }
+
+        /* ── Quote ── */
+        blockquote { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 300; max-width: 780px; text-align: center; line-height: 1.6; color: #EFF2FA; letter-spacing: -0.01em; }
+        cite { display: block; margin-top: 24px; font-size: 0.82rem; color: rgba(255, 255, 255, 0.25); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        /* ── Note Box (.note) ── */
+        .note { padding: 1.4vh 2.5vw; margin-top: 2vh; max-width: 82vw; border-radius: 2px; display: flex; align-items: center; gap: 12px; }
+        .note.warn { background: rgba(255, 207, 47, 0.06); border: 1px solid rgba(255, 207, 47, 0.2); }
+        .note.warn p { color: #FFCF2F; font-size: clamp(0.95rem, 1.2vw, 1.1rem); font-weight: 500; }
+        .note.tip { background: rgba(16, 232, 144, 0.05); border: 1px solid rgba(16, 232, 144, 0.18); }
+        .note.tip p { color: #10E890; font-size: clamp(0.95rem, 1.2vw, 1.1rem); font-weight: 500; }
+
+        /* ── Pipeline ── */
+        .pipeline { display: flex; align-items: center; gap: 4px; margin: 2vh 0; flex-wrap: nowrap; }
+        .pipeline-step { background: #151A2E; padding: 1.4vh 2.4vw; font-size: clamp(0.9rem, 1.15vw, 1.05rem); font-weight: 600; text-align: center; border-radius: 2px; border-top: 2px solid rgba(255, 255, 255, 0.06); color: #D0D8E8; white-space: nowrap; }
+        .pipeline-step.on { background: #151C38; border-top-color: rgba(90, 160, 220, 0.35); color: #90B8E0; }
+        .pipeline-step.green { background: #121E1C; border-top-color: rgba(80, 190, 150, 0.30); color: #68C8A8; }
+        .pipeline-step.red { background: #1C1418; border-top-color: rgba(200, 120, 120, 0.30); color: #D09090; }
+        .pipeline-step.violet { background: #18142A; border-top-color: rgba(160, 140, 220, 0.30); color: #B0A8D8; }
+        .pipeline-arrow { color: rgba(255, 255, 255, 0.12); font-size: 1.2rem; padding: 0 6px; }
+
+        /* ── Table ── */
+        .tbl { margin-top: 1.5vh; border-collapse: collapse; max-width: 82vw; }
+        .tbl th, .tbl td { padding: 1vh 2vw; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .tbl th { color: rgba(255, 255, 255, 0.3); font-weight: 500; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; }
+        .tbl td { font-size: clamp(0.95rem, 1.15vw, 1.1rem); color: #B8C8E0; }
+
+        /* ── Tool Cards (.tool-cards) ── */
+        .tool-cards { display: flex; gap: 8px; flex-wrap: nowrap; width: 100%; max-width: 900px; margin-top: 2vh; }
+        .tool-card {
+            background: rgba(255, 255, 255, 0.045); flex: 1; padding: 22px 20px; text-align: center;
+            border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.07); border-top: 2px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px;
+        }
+        .tool-card.recommended { background: rgba(167, 243, 208, 0.075); border-top-color: rgba(167, 243, 208, 0.26); border-color: rgba(167, 243, 208, 0.18); }
+        .tool-card.hot { background: rgba(247, 231, 206, 0.105); border-top-color: rgba(247, 231, 206, 0.30); border-color: rgba(247, 231, 206, 0.20); }
+        .tool-card .name { font-size: 1.02rem; font-weight: 800; color: #E9EEF8; letter-spacing: -0.01em; }
+        .tool-card .desc { font-size: 0.82rem; color: rgba(255, 255, 255, 0.45); line-height: 1.35; }
+        .tool-card .tag-item { display: inline-block; font-size: 0.78rem; padding: 4px 12px; background: rgba(247, 231, 206, 0.085); color: rgba(255, 255, 255, 0.62); border: 1px solid rgba(247, 231, 206, 0.18); border-radius: 999px; margin: 2px; letter-spacing: 0.06em; text-transform: uppercase; }
+        .tool-card .tag-item.green { background: rgba(80, 190, 150, 0.08); color: #68B8A0; }
+        .tool-card .tag-item.blue { background: rgba(90, 160, 220, 0.08); color: #7CA8D0; }
+        .tool-card .tag-item.yellow { background: rgba(200, 175, 90, 0.08); color: #C0A860; }
+
+        /* ── Stat Grid (.stat-grid) ── */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 2vh; width: 100%; max-width: 900px; }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.052); padding: 32px 24px; text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.075); border-top: 2px solid rgba(255, 255, 255, 0.14); border-radius: 20px;
+            box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+        }
+        .stat-card.on { background: #151C38; border-top-color: rgba(90, 160, 220, 0.35); }
+        .stat-card.green-on { background: rgba(167, 243, 208, 0.09); border-top-color: rgba(167, 243, 208, 0.28); border-color: rgba(167, 243, 208, 0.18); }
+        .stat-card.yellow-on { background: rgba(247, 231, 206, 0.10); border-top-color: rgba(247, 231, 206, 0.28); border-color: rgba(247, 231, 206, 0.18); }
+        .stat-card.red-on { background: rgba(252, 165, 165, 0.085); border-top-color: rgba(252, 165, 165, 0.26); border-color: rgba(252, 165, 165, 0.18); }
+        .stat-card .label { font-size: 0.92rem; color: rgba(255, 255, 255, 0.48); text-transform: uppercase; letter-spacing: 0.10em; margin-bottom: 12px; }
+        .stat-card .value { font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 900; line-height: 1; color: #E0E6F0; margin-bottom: 8px; }
+        .stat-card .source { font-size: 0.78rem; color: rgba(255, 255, 255, 0.30); }
+
+        /* ── Architecture Layers (.arch-layers) ── */
+        .arch-layers { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 700px; margin-top: 3vh; }
+        .arch-layer { display: flex; align-items: center; background: #151A2E; padding: 24px 32px; border-left: 4px solid rgba(255, 255, 255, 0.06); }
+        .arch-layer.on { background: #151C38; border-left-color: #5FB3FF; }
+        .arch-layer .role { width: 120px; font-size: 0.85rem; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; text-align: left; }
+        .arch-layer .brand { flex: 1; font-size: 1.4rem; font-weight: 700; color: #E0E6F0; text-align: left; }
+        .arch-layer .desc { font-size: 1rem; color: rgba(255, 255, 255, 0.5); text-align: right; }
+
+        /* ── Image Placeholder ── */
+        .img { background: #111422; border: 1px solid rgba(255, 255, 255, 0.06); padding: 4vh 3vw; text-align: center; max-width: 600px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .img .label { font-size: 0.85rem; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+        .img .prompt { font-size: 0.9rem; color: rgba(255, 255, 255, 0.3); line-height: 1.5; }
+
+        /* ── Two Column Layout ── */
+        .two-col { display: flex; gap: 3vw; width: 100%; max-width: 900px; margin-top: 2vh; }
+        .two-col .col { flex: 1; text-align: left; }
+
+        /* ── Typographic Impact ── */
+        .impact-text { font-size: clamp(2.8rem, 5vw, 4.5rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.03em; text-align: center; color: #FFF; }
+        .impact-sub { font-size: clamp(1.4rem, 2vw, 1.8rem); font-weight: 400; color: #99ABCA; margin-top: 2vh; text-align: center; }
+
+        /* ── Misc ── */
+        .big { font-size: clamp(6rem, 18vw, 14rem); font-weight: 900; color: #1428A0; line-height: 1; opacity: 0.15; position: absolute; pointer-events: none; }
+        .formula { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; letter-spacing: 0.02em; }
+        .stat { text-align: center; }
+        .stat .number { font-size: clamp(4rem, 10vw, 8rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: #5FB3FF; }
+        .stat .label { font-size: clamp(1rem, 1.5vw, 1.3rem); color: #99ABCA; margin-top: 1vh; font-weight: 400; letter-spacing: 0.05em; }
+
+        /* ── Navigation ── */
+        .nav { position: fixed; bottom: 28px; left: 40px; display: flex; gap: 4px; }
+        .nav button { width: 44px; height: 44px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.07); color: rgba(255, 255, 255, 0.3); font-size: 16px; cursor: pointer; transition: all 0.2s; border-radius: 0; }
+        .nav button:hover { background: rgba(20, 40, 160, 0.25); border-color: rgba(95, 179, 255, 0.4); color: #fff; }
+        .part-label { position: fixed; top: 28px; left: 40px; font-size: 0.75rem; color: rgba(255, 255, 255, 0.18); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 500; }
+        .page-num { position: fixed; bottom: 28px; right: 40px; font-size: 0.75rem; color: rgba(255, 255, 255, 0.15); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+        .progress { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(90deg, #1428A0, #5FB3FF); transition: none; z-index: 100; }
+        .slide::-webkit-scrollbar { width: 3px; }
+        .slide::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.06); }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .slide { padding: 28px 24px 72px 24px; }
+            .comp, .grid, .tool-cards { flex-direction: column; gap: 6px; }
+            .stat-grid { grid-template-columns: 1fr; gap: 8px; }
+            .arch-layers { gap: 4px; }
+            .arch-layer { flex-direction: column; align-items: flex-start; padding: 16px 20px; gap: 4px; }
+            .arch-layer .role { width: auto; margin-bottom: 2px; }
+            .arch-layer .desc { text-align: left; }
+            .two-col { flex-direction: column; gap: 2vh; }
+            .tbl { display: block; overflow-x: auto; }
+            .nav { left: 20px; bottom: 20px; }
+            .pipeline { flex-wrap: wrap; gap: 1px; }
+        }
+
+        /* ── Print ── */
+        @media print {
+            body { background: #fff; color: #000; overflow: visible; }
+            .nav, .progress, .part-label, .page-num { display: none; }
+            .slides { display: block; }
+            .slide { min-height: auto; page-break-after: always; background: #fff !important; color: #000 !important; padding: 2cm; }
+            .slide.samsung, .slide.blue, .slide.navy, .slide.indigo, .slide.violet,
+            .slide.rose, .slide.mint, .slide.teal, .slide.cyan, .slide.amber, .slide.orange {
+                color: #000 !important;
+            }
+            .em, .red, .green, .yellow { color: #000 !important; }
+            .sub { color: #333 !important; }
+        }
+
+        /* ── Accessibility ── */
+        @media (prefers-reduced-motion: reduce) { .slides { transition: none; } .nav button { transition: none; } }
+        .nav button:focus-visible { outline: 2px solid #5FB3FF; outline-offset: 2px; }
+        .slide:focus-visible { outline: none; }
+    </style>
+</head>
+<body>
+    <div class="part-label">Presentation Label</div>
+    <div class="progress" id="progress"></div>
+    <div class="slides" id="slides">
+
+        <!-- ═══════════════ SLIDES GO HERE ═══════════════ -->
+
+        <!-- Example: Cover Slide -->
+        <div class="slide samsung">
+            <h1>Presentation Title</h1>
+            <p class="sub">Subtitle or tagline</p>
+            <p class="meta" style="margin-top:4vh; color:rgba(255,255,255,0.35);">Author · Department · Date</p>
+        </div>
+
+        <!-- Example: Section Divider -->
+        <div class="slide mint">
+            <p class="meta" style="color:rgba(255,255,255,0.4);">SECTION 01</p>
+            <h1>Section Title</h1>
+            <p class="sub">Brief <span class="em">overview</span></p>
+        </div>
+
+        <!-- Example: Content Slide -->
+        <div class="slide surface">
+            <h3>Content Heading</h3>
+            <ul class="list" style="margin-top:2vh;">
+                <li><strong>Point 1</strong> — Description</li>
+                <li><strong class="em">Highlighted</strong> — Important point</li>
+                <li><strong class="green">Success</strong> — Positive item</li>
+            </ul>
+        </div>
+
+        <!-- Example: Closing Slide -->
+        <div class="slide blue">
+            <h1>Thank You</h1>
+            <p class="sub">Questions?</p>
+            <p class="meta" style="margin-top:5vh; color:rgba(255,255,255,0.35);">Q &amp; A</p>
+        </div>
+
+        <!-- ═══════════════ END SLIDES ═══════════════ -->
+
+    </div>
+    <nav aria-label="Slide navigation" class="nav">
+        <button aria-label="Previous slide" onclick="prev()">&#8592;</button>
+        <button aria-label="Next slide" onclick="next()">&#8594;</button>
+    </nav>
+    <div class="page-num" id="pageNum">1 / 1</div>
+    <script>
+        const slides = document.querySelectorAll('.slide'), total = slides.length;
+        let current = 0;
+        const pageNumEl = document.getElementById('pageNum'), progressEl = document.getElementById('progress');
+        function update() {
+            if (!pageNumEl || !progressEl) return;
+            pageNumEl.textContent = `${current + 1} / ${total}`;
+            progressEl.style.width = total > 1 ? `${(current / (total - 1)) * 100}%` : '100%';
+        }
+        function goTo(i) {
+            if (total === 0) return;
+            if (i < 0) i = 0; if (i >= total) i = total - 1;
+            current = i;
+            document.getElementById('slides').style.transform = `translateX(-${current * 100}vw)`;
+            history.replaceState(null, '', '#' + (current + 1));
+            update();
+        }
+        function next() { goTo(current + 1); }
+        function prev() { goTo(current - 1); }
+        document.addEventListener('keydown', e => {
+            const tag = document.activeElement.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement.isContentEditable) return;
+            switch (e.key) {
+                case 'ArrowRight': case ' ': case 'PageDown': e.preventDefault(); next(); break;
+                case 'ArrowLeft': case 'PageUp': e.preventDefault(); prev(); break;
+                case 'Home': e.preventDefault(); goTo(0); break;
+                case 'End': e.preventDefault(); goTo(total - 1); break;
+                case 'f': case 'F':
+                    const el = document.documentElement;
+                    const isFs = document.fullscreenElement || document.webkitFullscreenElement;
+                    if (!isFs) { (el.requestFullscreen || el.webkitRequestFullscreen).call(el)?.catch(() => {}); }
+                    else { (document.exitFullscreen || document.webkitExitFullscreen).call(document)?.catch(() => {}); }
+                    break;
+            }
+        });
+        let tx = 0, ty = 0;
+        document.addEventListener('touchstart', e => { if (e.touches.length > 1) return; tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchend', e => { if (e.changedTouches.length > 1) return; const dx = tx - e.changedTouches[0].clientX, dy = ty - e.changedTouches[0].clientY; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) { if (dx > 0) next(); else prev(); } }, { passive: true });
+        const initSlide = parseInt(location.hash.slice(1)) - 1;
+        if (!isNaN(initSlide) && initSlide >= 0) goTo(initSlide); else update();
+    </script>
+</body>
+</html>
