@@ -2,6 +2,15 @@
 
 Rules for composing custom visual layouts beyond the standard component library.
 
+## Table of Contents
+
+1. [When to Go Custom](#when-to-go-custom)
+2. [Core Design Tokens](#core-design-tokens-never-deviate)
+3. [Common Custom Patterns](#common-custom-patterns)
+   - Icon Array | Highlighted Card | Pill Badges | Circular Highlight | Labeled Container Box
+4. [Anti-Patterns](#anti-patterns-never-do-these)
+5. [Composition Checklist](#composition-checklist)
+
 ## When to Go Custom
 
 Use custom inline compositions ONLY when no standard component fits. Before composing custom:
@@ -50,7 +59,7 @@ Drop shadow on icon: filter: drop-shadow(0 0 15px rgba([color], 0.3))
 Use flex row with centered items and connector arrows:
 
 ```html
-<div style="display: flex; align-items: center; justify-content: center; gap: 3vw; margin: 6vh 0; width: 100%; max-width: 850px;">
+<div style="display: flex; align-items: center; justify-content: center; gap: 3vw; margin: 6vh 0; width: 100%; max-width: 900px;">
     <div style="text-align: center;">
         <i class="ph-fill ph-[icon]" style="font-size: 5rem; color: rgba(255,255,255,0.3);"></i>
         <p style="color: rgba(255,255,255,0.5); margin-top: 1rem; font-weight: 500; font-size: 1.1rem;">Label</p>
@@ -119,5 +128,5 @@ When creating a custom layout, verify:
 - [ ] Flex-based layout (not absolute positioning within content)
 - [ ] Responsive-safe (will stack on mobile at 768px)
 - [ ] Readable contrast (text on background)
-- [ ] Max-width: 850px for contained compositions
+- [ ] Max-width: 900px for contained compositions (matches template.html)
 - [ ] Icons are from Phosphor library only

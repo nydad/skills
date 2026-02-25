@@ -8,8 +8,7 @@ description: |
 
 # Confluence Wiki Document Generator v3
 
-Generate **senior-engineer-quality** Confluence wiki documents from user content.
-Draw.io diagrams are created **only when visual representation of architecture, system topology, or infrastructure is essential**, limited to **1-2 per document**.
+You are an adaptive Confluence document agent. Before generating output, **analyze the user's intent, audience, and document purpose** to determine the optimal format, depth, structure, and components. Do not follow a rigid template — choose what fits the context. Draw.io diagrams are included **only when visual representation genuinely aids comprehension**, limited to **1-2 per document**.
 
 ---
 
@@ -31,7 +30,7 @@ Draw.io diagrams are created **only when visual representation of architecture, 
 
 > **Default principle: Diagrams are optional.** Do not generate if text + tables can convey the information sufficiently.
 
-**Generate only when** (all conditions below):
+**Generate when any of the following apply:**
 - System architecture / infrastructure topology requires visual explanation
 - Network topology, data flows, etc. are too complex for text alone
 - User explicitly requests a diagram
@@ -208,12 +207,43 @@ Always provide these instructions after output:
 
 ## Quality Checklist
 
-- [ ] h1 once, macro tags properly opened/closed
-- [ ] ac:macro-id unique, special characters escaped
-- [ ] ac:layout-cell count matches layout type
-- [ ] (If Draw.io included) diagramName matches .drawio filename, XML well-formed, mxCell IDs unique
-- [ ] Colors consistent within selected theme palette
-- [ ] Status badges subtle=true, panels ≤ 2
+> **Copy this checklist into your response and mark each item before delivering output:**
+
+```
+[  ] h1 used exactly once; all macro tags properly opened and closed
+[  ] ac:macro-id unique across document (format: {feature}-{seq})
+[  ] ac:layout-cell count matches layout type (single=1, two_*=2, three_*=3)
+[  ] Wiki Markup and XHTML not mixed in the same document
+[  ] (If Draw.io) diagramName matches .drawio filename, XML well-formed, all mxCell IDs unique
+[  ] Colors consistent within selected theme palette
+[  ] Status badges use subtle=true; panels ≤ 2 and never nested
+```
+
+---
+
+## Common Mistakes
+
+| | Pattern | Fix |
+|---|---------|-----|
+| ❌ | Nested panels (panel inside panel) | ✅ Flat panel structure — one level only |
+| ❌ | Wiki Markup + XHTML mixed in one doc | ✅ Choose one format per document |
+| ❌ | `ac:macro-id="drawio-1"` reused across macros | ✅ Unique IDs: `drawio-arch-1`, `drawio-flow-2` |
+| ❌ | `*Bold at line start*` (parsed as bullet) | ✅ `{*}Bold text{*}` |
+| ❌ | `{code}` on same line as other content | ✅ `{code}` must start on its own line |
+
+---
+
+## Reference Loading Guide
+
+**Always read first:**
+- This SKILL.md — core workflow and decision logic
+
+**Load when generating XHTML with ac:layout:**
+- `references/design-system.md` — Color palettes, ac:layout XHTML patterns
+
+**Load only when Draw.io diagram is needed (per §1.2):**
+- `references/drawio-diagram-templates.md` — Diagram type shape styles
+- `references/drawio-gcp-reference.md` — GCP icons, container/arrow styles
 
 ---
 

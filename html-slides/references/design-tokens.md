@@ -1,5 +1,17 @@
 # Design Tokens Quick Reference
 
+## Table of Contents
+
+1. [Section Theme Colors](#section-theme-colors-for-divider-slides)
+2. [In-Section Content Themes](#in-section-content-themes-for-content-slides-within-a-section)
+3. [Base Themes](#base-themes)
+4. [Text Color Helpers](#text-color-helpers)
+5. [Typography Scale](#typography-scale)
+6. [Fonts](#fonts)
+7. [Card Glass-Morphism Pattern](#card-glass-morphism-pattern)
+8. [Card State Modifiers](#card-state-modifiers)
+9. [Navigation Keyboard Shortcuts](#navigation-keyboard-shortcuts)
+
 ## Section Theme Colors (for divider slides)
 
 | Theme | Class | Background | `.em` Color |

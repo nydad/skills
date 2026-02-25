@@ -2,6 +2,20 @@
 
 The model already knows draw.io XML structure. Only **type-specific shape styles** and **color guides** are documented here.
 
+**Table of Contents**
+- §1 Flowchart
+- §2 Network Topology
+- §3 CI/CD Pipeline
+- §4 Data Pipeline
+- §5 Microservices Architecture
+- §6 Swimlane (Cross-functional)
+- §7 C4 Model
+- §8 ERD (Entity Relationship)
+- §9 Kubernetes Deployment
+- §10 Sequence Diagram
+- §11 Additional SVG Inline Icons
+- §12 Architecture Overview
+
 ---
 
 ## §1 Flowchart
@@ -193,11 +207,44 @@ SVG icon style:
 shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,BASE64;
 ```
 
-GCP device icons (built-in):
+> **GCP device icons:** See `drawio-gcp-reference.md` §3 for the full list of built-in GCP device shapes (`mxgraph.gcp2.laptop`, `mxgraph.gcp2.phone`, etc.).
+
+---
+
+## §12 Architecture Overview
+
+> Covers "Architecture Overview" in SKILL.md §1.2. Use for system topology, cloud infrastructure, and high-level service maps.
+
+**pageSize: 1200x800**
+
+**Layered zone containers (top → bottom or outside → inside):**
 ```
-shape=mxgraph.gcp2.laptop           Laptop (38x25)
-shape=mxgraph.gcp2.phone            Mobile (22x35)
-shape=mxgraph.gcp2.users            User group (35x22)
-shape=mxgraph.gcp2.application      Application
-shape=mxgraph.gcp2.database         Database
+External zone:   fillColor=#f8f9fa;strokeColor=#dee2e6;strokeWidth=2;rounded=1;verticalAlign=top;arcSize=8;
+GCP Platform:    fillColor=#F6F6F6;strokeColor=none;shadow=0;fontSize=14;align=left;verticalAlign=top;spacingTop=-4;spacingLeft=40;html=1;fontColor=#717171;
+Region:          rounded=1;absoluteArcSize=1;arcSize=2;html=1;strokeColor=#d6b656;fillColor=#fff2cc;fontSize=12;align=left;verticalAlign=top;spacing=10;spacingTop=-4;
+Network/VPC:     rounded=1;absoluteArcSize=1;arcSize=2;html=1;strokeColor=#d79b00;fillColor=#ffe6cc;fontSize=12;align=left;verticalAlign=top;spacing=10;spacingTop=-4;
+Internal zone:   fillColor=#f0fdf4;strokeColor=#22c55e;strokeWidth=2;rounded=1;verticalAlign=top;arcSize=4;
 ```
+
+**Service components (GCP hexIcon):**
+```
+shape=mxgraph.gcp2.hexIcon;prIcon=SERVICE_NAME;fillColor=#5184F3;strokeColor=none;
+```
+→ See `drawio-gcp-reference.md` §1-2 for full hexIcon style and prIcon list.
+
+**Typical layout:**
+1. External zone (users, external services) at top or left
+2. GCP Platform container wrapping Region → VPC → Subnet layers
+3. Service cards with hexIcons inside subnet zones
+4. Numbered arrows (① ② ③) showing request/data flow
+5. Summary footer bar at bottom with key points
+
+**Arrows:**
+```
+User → LB:        endArrow=classic;strokeColor=#9ca3af;strokeWidth=2;dashed=1;dashPattern=5 3;
+LB → Service:     endArrow=classic;strokeColor=#4284F3;strokeWidth=2;
+Service → DB:     endArrow=classic;strokeColor=#4284F3;strokeWidth=2;
+Cross-region:     endArrow=classic;strokeColor=#22c55e;strokeWidth=2;dashed=1;
+```
+
+**Font hierarchy:** Title 20px > Zone label 12px > Service name 11px > Description 9px > Sub 7px

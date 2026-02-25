@@ -1,5 +1,14 @@
 # Confluence Design System — Color Palettes + ac:layout Patterns
 
+**Table of Contents**
+- §1 Default Palette (Ocean Blue)
+- §2 Theme Color Palettes (7 Themes)
+- §3 KPI Card Colors by Theme
+- §4 XHTML Table Styling
+- §5 ac:layout Practical XHTML Patterns
+
+---
+
 ## 1. Default Palette (Ocean Blue)
 
 | Purpose | Hex |
@@ -7,7 +16,7 @@
 | Panel header, primary border | #2c5282 |
 | Panel background | #f7fafc |
 | Subtle border | #e2e8f0 |
-| Success | #38a169 |
+| Success | #22c55e |
 | Warning | #dd6b20 |
 | Error | #dc2626 |
 | Tab navigation | #403294 |
@@ -79,6 +88,8 @@ Header background + alternating rows:
 <tr><th style="background-color: #2c5282; color: #ffffff;">Header</th></tr>
 <tr style="background-color: #f7fafc;"><td>Alternating row</td></tr>
 ```
+
+> **Theme-aware:** The header `background-color` should use the selected theme's **Primary** color, not hardcoded Ocean Blue. For example, Forest Green uses `#276749`, Soft Purple uses `#553c9a`. See §2 for each theme's Primary value.
 
 ---
 

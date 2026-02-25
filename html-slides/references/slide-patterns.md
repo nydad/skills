@@ -2,6 +2,32 @@
 
 Complete HTML patterns for all slide types. Copy and adapt these.
 
+## Table of Contents
+
+| # | Pattern | Use |
+|---|---------|-----|
+| 1 | [Cover Slide](#1-cover-slide) | Opening slide |
+| 2 | [Section Divider](#2-section-divider) | Separate major sections |
+| 3 | [Content with List](#3-content-with-list) | Key points, agendas |
+| 4 | [Comparison Cards](#4-comparison-cards) | Before/after, pros/cons |
+| 5 | [Feature Grid](#5-feature-grid) | Features, categories |
+| 6 | [Big Statistic](#6-big-statistic) | Single impressive metric |
+| 7 | [Stat Grid (2x2)](#7-stat-grid-2x2) | Multi-metric dashboard |
+| 8 | [Pipeline / Process](#8-pipeline--process) | Workflows, timelines |
+| 9 | [Architecture Layers](#9-architecture-layers) | Technology stacks |
+| 10 | [Tool / Product Cards](#10-tool--product-cards) | Tool comparison |
+| 11 | [Quote](#11-quote) | Citations, key statements |
+| 12 | [Code Block](#12-code-block) | Code snippets |
+| 13 | [Data Table](#13-data-table) | Structured data comparison |
+| 14 | [Warning / Tip Callouts](#14-warning--tip-callouts) | Important notices |
+| 15 | [Two Column Layout](#15-two-column-layout) | Side-by-side content |
+| 16 | [Impact Statement](#16-impact-statement) | Bold typographic statements |
+| 17 | [Formula / Concept Equation](#17-formula--concept-equation) | Key equations |
+| 18 | [Image Slide](#18-image-slide) | Photos, diagrams |
+| 19 | [Background Watermark Number](#19-background-watermark-number) | Decorative numbers |
+| 20 | [Closing Slide](#20-closing-slide) | Thank you, Q&A |
+| - | [Phosphor Icons Usage](#phosphor-icons-usage) | Icon reference |
+
 ---
 
 ## 1. Cover Slide

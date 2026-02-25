@@ -23,13 +23,32 @@ Works for any topic: tech talks, business pitches, training, reports, keynotes.
 
 ## Generation Workflow (2 Phases)
 
+> **You are an adaptive presentation agent.** Every deck should be uniquely shaped by its topic, audience, tone, and purpose. Slide count, component selection, visual density, and narrative arc must all adapt to context -- never produce cookie-cutter output.
+
 ### Phase 1: Narrative Architecture (plan before generating)
 
-1. **Analyze** the topic, audience, tone, and target slide count
+1. **Analyze** the topic, audience, tone, and purpose -- then decide the appropriate format:
+   - Lightning talk / elevator pitch: **5-7 slides** (one core message, minimal depth)
+   - Standard talk / training: **15-25 slides** (balanced depth)
+   - Deep-dive / technical report: **30-40 slides** (comprehensive coverage)
 2. **Plan the arc**: Opening > Context > Depth sections > Synthesis > Close
 3. **Assign section themes** from the palette (use 3-5 distinct section colors, not all 13)
 4. **Choose component types** per slide based on content type
 5. **Map each slide**: `[theme-class, component-pattern, key-content]`
+
+### Phase 1 Output Format
+
+Before generating HTML, output this planning table so the structure is visible:
+
+| # | Section | Theme | Component | Key Message |
+|---|---------|-------|-----------|-------------|
+| 1 | Opening | samsung | hero (cover) | Title + hook |
+| 2 | Context | navy | list | Background + pain points |
+| 3-5 | Core | teal | comp + stat | Main argument with evidence |
+| 6 | Insight | surface | quote | Key takeaway |
+| 7 | Close | blue | closing | Call to action |
+
+*(Adapt rows to actual slide count decided in step 1.)*
 
 ### Phase 2: HTML Assembly
 
@@ -123,6 +142,7 @@ See `references/slide-patterns.md` for complete HTML snippets.
 
 | Content Type | Section Theme | Content Theme |
 |-------------|--------------|---------------|
+| Brand/Cover | samsung | surface / in-blue |
 | Technical | cyan / teal | surface / in-cyan / in-teal |
 | Business | blue / navy | surface / in-blue / in-navy |
 | Creative | violet / indigo | in-violet / in-indigo |
@@ -132,20 +152,48 @@ See `references/slide-patterns.md` for complete HTML snippets.
 
 ## Validation Checklist
 
-- [ ] Single `.html` file with all CSS/JS inline
-- [ ] Google Fonts link (Noto Sans KR + JetBrains Mono) present
-- [ ] Phosphor Icons CDN link present
-- [ ] `<html lang="...">` set correctly (ko, en, etc.)
-- [ ] `.part-label` text updated
-- [ ] `<title>` updated
-- [ ] All slides have appropriate theme class
-- [ ] Navigation JS present and unmodified
-- [ ] `<nav>` with `aria-label` on buttons present
-- [ ] `.page-num` and `.progress` elements present
-- [ ] Responsive `@media (max-width: 768px)` in CSS
-- [ ] Print `@media print` in CSS
-- [ ] Reduced-motion `@media (prefers-reduced-motion)` in CSS
-- [ ] No invented CSS classes -- only those from template
+**After generating, copy this checklist and verify each item:**
+
+```
+[ ] Single .html file with all CSS/JS inline
+[ ] Google Fonts link (Noto Sans KR + JetBrains Mono) present
+[ ] Phosphor Icons CDN link present
+[ ] <html lang="..."> set correctly (ko, en, etc.)
+[ ] .part-label text updated to match presentation title
+[ ] <title> updated to match presentation title
+[ ] All slides have appropriate theme class
+[ ] Navigation JS present and unmodified from template
+[ ] <nav> with aria-label on buttons present
+[ ] .page-num and .progress elements present
+[ ] Responsive @media (max-width: 768px) in CSS
+[ ] Print @media print in CSS
+[ ] Reduced-motion @media (prefers-reduced-motion) in CSS
+[ ] No invented CSS classes -- only those from template
+```
+
+## Common Mistakes
+
+| Mistake | Correct Approach |
+|---------|-----------------|
+| `class="my-custom-card"` -- inventing CSS classes | Only use classes defined in template's `<style>` block |
+| Modified `<script>` block -- editing navigation JS | Copy JS verbatim from `template.html` |
+| `style="color: #123456"` inline for theming | Use `.em`, `.sub`, `.red`, `.green`, `.yellow` theme classes |
+| All 13 section themes in one deck | Pick 3-5 themes max for visual coherence |
+| Empty slides with just a title | Every slide must have meaningful content beyond the heading |
+
+## Reference Loading Guide
+
+**Always load first:**
+- `references/template.html` -- Base HTML skeleton (required for all outputs)
+
+**Load for component selection:**
+- `references/slide-patterns.md` -- When choosing slide components
+
+**Load for styling decisions:**
+- `references/design-tokens.md` -- When selecting themes or customizing colors
+
+**Load for advanced compositions only:**
+- `references/creative-guidelines.md` -- Only for custom visual compositions beyond standard patterns
 
 ## References
 

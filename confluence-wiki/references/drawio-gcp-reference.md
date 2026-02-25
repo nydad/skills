@@ -3,6 +3,18 @@
 The model already knows draw.io XML structure (`<mxfile>`, `<mxGraphModel>`, `<mxCell>`), so that is omitted.
 Only **exact style values and icon names that the model cannot memorize** are documented here.
 
+**Table of Contents**
+- §1 GCP hexIcon Style
+- §2 Full prIcon List
+- §3 GCP Device Icons
+- §4 Container Styles
+- §5 Arrow Styles
+- §6 Text Styles
+- §7 Summary Footer Bar
+- §8 Service Card Pattern
+- §9 Tool Card + Pass/Fail Pattern
+- §10 GCP Color Palette Summary
+
 ---
 
 ## 1. GCP hexIcon Style
