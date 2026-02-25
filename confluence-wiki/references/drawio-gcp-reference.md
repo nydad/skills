@@ -1,20 +1,20 @@
-# Draw.io GCP 스타일 레퍼런스 — 아이콘 + 스타일 문자열
+# Draw.io GCP Style Reference — Icons + Style Strings
 
-모델이 draw.io XML 구조(`<mxfile>`, `<mxGraphModel>`, `<mxCell>`)를 알고 있으므로 생략.
-여기에는 **모델이 외울 수 없는 정확한 스타일 값과 아이콘 이름**만 기록.
+The model already knows draw.io XML structure (`<mxfile>`, `<mxGraphModel>`, `<mxCell>`), so that is omitted.
+Only **exact style values and icon names that the model cannot memorize** are documented here.
 
 ---
 
-## 1. GCP hexIcon 스타일
+## 1. GCP hexIcon Style
 
-**독립 아이콘 (50x42, 라벨 아래):**
+**Standalone icon (50x42, label below):**
 ```
 html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;
 verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;
 fontColor=#999999;shape=mxgraph.gcp2.hexIcon;prIcon=SERVICE_NAME
 ```
 
-**카드 내 아이콘 (44x39, 라벨 오른쪽):**
+**In-card icon (44x39, label right):**
 ```
 dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;
 shape=mxgraph.gcp2.hexIcon;prIcon=SERVICE_NAME;part=1;labelPosition=right;
@@ -24,7 +24,7 @@ fontColor=#999999;fontSize=12;
 
 ---
 
-## 2. prIcon 전체 목록
+## 2. Full prIcon List
 
 ### Compute
 compute_engine, app_engine, cloud_functions, cloud_run, container_engine, container_optimized_os, gpu, gke_on_prem
@@ -58,21 +58,21 @@ cloud_iot_core, cloud_iot_edge
 
 ---
 
-## 3. GCP 디바이스 아이콘
+## 3. GCP Device Icons
 
 ```
-shape=mxgraph.gcp2.laptop           노트북 (38x25)
-shape=mxgraph.gcp2.phone            모바일 (22x35)
-shape=mxgraph.gcp2.users            사용자 그룹 (35x22)
-shape=mxgraph.gcp2.desktop_and_mobile  데스크탑+모바일
-shape=mxgraph.gcp2.application      애플리케이션
-shape=mxgraph.gcp2.database         데이터베이스
-shape=mxgraph.gcp2.storage          스토리지
-shape=mxgraph.gcp2.report           리포트
-shape=mxgraph.gcp2.google_cloud_platform  GCP 로고 뱃지
+shape=mxgraph.gcp2.laptop           Laptop (38x25)
+shape=mxgraph.gcp2.phone            Mobile (22x35)
+shape=mxgraph.gcp2.users            User group (35x22)
+shape=mxgraph.gcp2.desktop_and_mobile  Desktop+Mobile
+shape=mxgraph.gcp2.application      Application
+shape=mxgraph.gcp2.database         Database
+shape=mxgraph.gcp2.storage          Storage
+shape=mxgraph.gcp2.report           Report
+shape=mxgraph.gcp2.google_cloud_platform  GCP logo badge
 ```
 
-디바이스 기본 스타일:
+Device default style:
 ```
 dashed=0;html=1;fillColor=#757575;strokeColor=none;labelPosition=center;
 verticalLabelPosition=bottom;align=center;verticalAlign=top;fontSize=11;fontColor=#999999;
@@ -80,14 +80,14 @@ verticalLabelPosition=bottom;align=center;verticalAlign=top;fontSize=11;fontColo
 
 ---
 
-## 4. 컨테이너 스타일
+## 4. Container Styles
 
-**GCP 플랫폼 컨테이너:**
+**GCP Platform container:**
 ```
 fillColor=#F6F6F6;strokeColor=none;shadow=0;fontSize=14;align=left;spacing=10;
 fontColor=#717171;verticalAlign=top;spacingTop=-4;fontStyle=0;spacingLeft=40;html=1;
 ```
-→ GCP 로고 뱃지: `shape=mxgraph.gcp2.google_cloud_platform;fillColor=#F6F6F6;strokeColor=none;` (32x32)
+→ GCP logo badge: `shape=mxgraph.gcp2.google_cloud_platform;fillColor=#F6F6F6;strokeColor=none;` (32x32)
 
 **Region:**
 ```
@@ -107,76 +107,76 @@ rounded=1;absoluteArcSize=1;arcSize=2;html=1;strokeColor=#666666;fillColor=#f5f5
 fontSize=12;fontColor=#333333;align=left;verticalAlign=top;spacing=10;spacingTop=-4;
 ```
 
-**Dashed Zone (논리 그룹):**
+**Dashed Zone (logical group):**
 ```
 strokeColor=#4284F3;dashed=1;strokeWidth=2;fillColor=none;fontSize=14;fontColor=#4284F3;
 verticalAlign=top;align=left;spacingLeft=10;spacingTop=-4;html=1;rounded=1;arcSize=2;
 ```
 
-**커스텀 영역:**
+**Custom zones:**
 ```
-외부:  fillColor=#f8f9fa;strokeColor=#dee2e6;strokeWidth=2;rounded=1;verticalAlign=top;arcSize=8;
-내부:  fillColor=#f0fdf4;strokeColor=#22c55e;strokeWidth=2;rounded=1;verticalAlign=top;arcSize=4;
-보안:  fillColor=#ffffff;strokeColor=#f97316;strokeWidth=2;rounded=1;arcSize=6;
-카드:  fillColor=#ffffff;strokeColor=#2684ff;strokeWidth=2;rounded=1;arcSize=8;
+External:  fillColor=#f8f9fa;strokeColor=#dee2e6;strokeWidth=2;rounded=1;verticalAlign=top;arcSize=8;
+Internal:  fillColor=#f0fdf4;strokeColor=#22c55e;strokeWidth=2;rounded=1;verticalAlign=top;arcSize=4;
+Security:  fillColor=#ffffff;strokeColor=#f97316;strokeWidth=2;rounded=1;arcSize=6;
+Card:      fillColor=#ffffff;strokeColor=#2684ff;strokeWidth=2;rounded=1;arcSize=8;
 ```
 
 ---
 
-## 5. 화살표 스타일
+## 5. Arrow Styles
 
 ```
-실선 (주요 흐름):    endArrow=classic;html=1;rounded=0;strokeColor=#4284F3;strokeWidth=2;
-점선 (외부/선택):    endArrow=classic;html=1;rounded=0;strokeColor=#9ca3af;strokeWidth=2;dashed=1;dashPattern=5 3;
-직각 라우팅:         edgeStyle=orthogonalEdgeStyle;strokeColor=#4284F3;strokeWidth=1;
-곡선 반환 (loop):   endArrow=classic;html=1;rounded=1;strokeColor=#22c55e;strokeWidth=2;
+Solid (main flow):       endArrow=classic;html=1;rounded=0;strokeColor=#4284F3;strokeWidth=2;
+Dashed (external/opt):   endArrow=classic;html=1;rounded=0;strokeColor=#9ca3af;strokeWidth=2;dashed=1;dashPattern=5 3;
+Orthogonal routing:      edgeStyle=orthogonalEdgeStyle;strokeColor=#4284F3;strokeWidth=1;
+Curved return (loop):    endArrow=classic;html=1;rounded=1;strokeColor=#22c55e;strokeWidth=2;
 ```
 
-**번호 레이블 (화살표 위):**
+**Numbered labels (on arrows):**
 ```
 edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];
 fontSize=9;fontStyle=1;fontColor=#2684ff;
 ```
-→ parent를 화살표 id로 설정, `<mxGeometry x="-0.1" relative="1">` + `<mxPoint y="-12" as="offset" />`
+→ Set parent to arrow ID, `<mxGeometry x="-0.1" relative="1">` + `<mxPoint y="-12" as="offset" />`
 
 ---
 
-## 6. 텍스트 스타일
+## 6. Text Styles
 
 ```
-제목 (20px):   text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#1a1a2e;
-영역 라벨:     text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#COLOR;letterSpacing=2;
-컴포넌트명:    text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=11;fontStyle=1;fontColor=#1a1a2e;
-부가 설명:     text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;fontColor=#6c757d;
-서브 라벨:     text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=bottom;fontSize=7;fontColor=#a3a3a3;
+Title (20px):        text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#1a1a2e;
+Zone label:          text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontStyle=1;fontColor=#COLOR;letterSpacing=2;
+Component name:      text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=11;fontStyle=1;fontColor=#1a1a2e;
+Description:         text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;fontColor=#6c757d;
+Sub label:           text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=bottom;fontSize=7;fontColor=#a3a3a3;
 ```
 
 ---
 
-## 7. 요약 푸터 바
+## 7. Summary Footer Bar
 
 ```xml
-<!-- 배경 -->
+<!-- Background -->
 style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#e2e8f0;strokeWidth=1;arcSize=15;"
 
-<!-- colored dot -->
+<!-- Colored dot -->
 style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=8;fontColor=#22c55e;"
 → value="●"
 
-<!-- 포인트 텍스트 -->
+<!-- Point text -->
 style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=10;fontColor=#475569;"
 ```
-포인트 간격: x 좌표 약 240px씩 증가
+Point spacing: x-coordinate increments of ~240px
 
 ---
 
-## 8. 서비스 카드 패턴
+## 8. Service Card Pattern
 
 ```xml
-<!-- 카드 컨테이너 -->
+<!-- Card container -->
 style="strokeColor=#dddddd;shadow=1;strokeWidth=1;rounded=1;absoluteArcSize=1;arcSize=2;"
 
-<!-- 카드 내 아이콘 (parent=카드ID) -->
+<!-- In-card icon (parent=cardID) -->
 style="dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;
 shape=mxgraph.gcp2.hexIcon;prIcon=SERVICE;part=1;labelPosition=right;
 verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=5;
@@ -186,20 +186,20 @@ fontColor=#999999;fontSize=12;"
 
 ---
 
-## 9. 도구 카드 + Pass/Fail 패턴
+## 9. Tool Card + Pass/Fail Pattern
 
-**도구 카드:**
+**Tool card:**
 ```
 rounded=1;fillColor=#fef3c7;strokeColor=#fbbf24;strokeWidth=1;fontSize=9;fontStyle=1;fontColor=#92400e;arcSize=15;
 ```
 
-**Pass 인디케이터:**
+**Pass indicator:**
 ```
 dot:   ellipse;aspect=fixed;fillColor=#22c55e;strokeColor=none; (12x12)
 label: fontSize=11;fontStyle=1;fontColor=#166534;
 ```
 
-**Fail 인디케이터:**
+**Fail indicator:**
 ```
 dot:   ellipse;aspect=fixed;fillColor=#ef4444;strokeColor=none; (12x12)
 label: fontSize=11;fontStyle=1;fontColor=#dc2626;
@@ -207,23 +207,23 @@ label: fontSize=11;fontStyle=1;fontColor=#dc2626;
 
 ---
 
-## 10. GCP 컬러 팔레트 요약
+## 10. GCP Color Palette Summary
 
-| 용도 | Hex |
-|------|-----|
-| 아이콘 채움 | #5184F3 |
-| 연결선 | #4284F3 |
-| 컨테이너 배경 | #F6F6F6 |
-| 컨테이너 라벨 | #717171 |
-| 서비스 라벨 | #999999 |
-| 카드 테두리 | #dddddd |
+| Purpose | Hex |
+|---------|-----|
+| Icon fill | #5184F3 |
+| Connector | #4284F3 |
+| Container background | #F6F6F6 |
+| Container label | #717171 |
+| Service label | #999999 |
+| Card border | #dddddd |
 | Region fill/stroke | #fff2cc / #d6b656 |
 | Network fill/stroke | #ffe6cc / #d79b00 |
 | Subnet fill/stroke | #f5f5f5 / #666666 |
-| 디바이스 | #757575 |
-| 외부 fill/stroke | #f8f9fa / #dee2e6 |
-| 내부 fill/stroke | #f0fdf4 / #22c55e |
-| 보안 stroke | #f97316 |
-| 성공 | #22c55e |
-| 실패 | #ef4444 |
-| 도구카드 fill/stroke/text | #fef3c7 / #fbbf24 / #92400e |
+| Device | #757575 |
+| External fill/stroke | #f8f9fa / #dee2e6 |
+| Internal fill/stroke | #f0fdf4 / #22c55e |
+| Security stroke | #f97316 |
+| Success | #22c55e |
+| Failure | #ef4444 |
+| Tool card fill/stroke/text | #fef3c7 / #fbbf24 / #92400e |
