@@ -1,9 +1,11 @@
 ---
 name: confluence-wiki
 description: |
-  Generates professional Confluence wiki documents. Optionally includes draw.io diagrams when architecture or structural visualization is needed.
-  Supports ac:layout, section/column, 7 color themes, and 10+ diagram types.
-  Triggers: /confluence, /wiki, /cwiki, confluence 문서, 위키 작성, 컨플루언스, 위키 문서 만들어줘, draw.io 다이어그램
+  Generates professional Confluence wiki documents with optional draw.io diagrams.
+  Use when creating technical docs, architecture pages, onboarding guides, or incident reports for Confluence.
+  Supports Wiki Markup and XHTML, ac:layout, 7 color themes, and 11 diagram types.
+
+  Triggers: confluence, wiki, cwiki, confluence 문서, 위키 작성, 컨플루언스, draw.io 다이어그램
 ---
 
 # Confluence Wiki Document Generator v3

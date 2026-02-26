@@ -50,6 +50,84 @@ confluence-wiki/
     drawio-gcp-reference.md       # GCP icons, containers, arrows
 ```
 
+### excalidraw-arch
+
+Excalidraw architecture diagram generator from codebase analysis.
+
+- 6 diagram types (layered, microservices, data flow, network, cloud, component)
+- 5 layout strategies (top-down, left-right, hub-spoke, nested, grid)
+- Semantic color-coding by architecture layer
+- Editable .excalidraw JSON output
+
+**Triggers**: `excalidraw`, `architecture diagram`, `시스템 구조도`
+
+```
+excalidraw-arch/
+  SKILL.md                        # Main skill definition
+  references/
+    excalidraw-styles.md          # Shape styles, colors, arrows
+    component-library.md          # Reusable component patterns
+```
+
+### mermaid-diagram
+
+Mermaid diagram generator supporting 20+ diagram types.
+
+- Adaptive diagram type selection based on content
+- Flowchart, sequence, class, ER, Gantt, mindmap, C4, and more
+- 5 built-in themes + custom theme configuration
+- Markdown code block or standalone .mmd output
+
+**Triggers**: `mermaid`, `diagram`, `flowchart`, `다이어그램`
+
+```
+mermaid-diagram/
+  SKILL.md                        # Main skill definition
+  references/
+    diagram-types.md              # 20 diagram type syntax patterns
+    theme-config.md               # Theme configuration and styling
+```
+
+### design-system
+
+Design system generator with industry-specific reasoning.
+
+- 30+ UI styles (glassmorphism, brutalism, neumorphism, etc.)
+- 15 industry-tailored color palettes with full hex values
+- 23 Google Fonts typography pairings
+- Design tokens output (CSS Custom Properties, Tailwind, JSON)
+- Design system capture from existing UIs
+
+**Triggers**: `design system`, `design tokens`, `디자인 시스템`
+
+```
+design-system/
+  SKILL.md                        # Main skill definition
+  references/
+    ui-styles.md                  # 22 UI style catalog
+    color-palettes.md             # 15 industry color palettes
+    typography-guide.md           # Font pairings, scales, loading
+```
+
+### playwright-e2e
+
+Playwright E2E test suite generator with adaptive test strategy.
+
+- Framework-aware test generation (React, Next.js, Vue, etc.)
+- Page object pattern, fixtures, and configuration
+- Visual regression and accessibility testing
+- Selector best practices and wait strategies
+
+**Triggers**: `playwright`, `e2e test`, `E2E 테스트`
+
+```
+playwright-e2e/
+  SKILL.md                        # Main skill definition
+  references/
+    test-patterns.md              # Common E2E test patterns
+    selectors-guide.md            # Selector strategies and waits
+```
+
 ## Installation
 
 Copy any skill directory into `~/.claude/skills/` to make it available globally in Claude Code:
@@ -58,6 +136,10 @@ Copy any skill directory into `~/.claude/skills/` to make it available globally 
 # Install a single skill
 cp -r html-slides ~/.claude/skills/
 cp -r confluence-wiki ~/.claude/skills/
+cp -r excalidraw-arch ~/.claude/skills/
+cp -r mermaid-diagram ~/.claude/skills/
+cp -r design-system ~/.claude/skills/
+cp -r playwright-e2e ~/.claude/skills/
 
 # Or install all skills
 cp -r */ ~/.claude/skills/

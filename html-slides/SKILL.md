@@ -1,12 +1,11 @@
 ---
 name: html-slides
 description: |
-  Professional HTML presentation generator with rich dark theme design system.
-  Creates polished, high-impact single-file HTML presentations for any topic.
+  Generates professional single-file HTML presentations with a rich dark-theme design system.
+  Use when creating slide decks, pitch presentations, keynote talks, training materials, or conference talks.
   Glass-morphism cards, 13 color themes, 25+ components, responsive, accessible.
 
-  Triggers: "presentation", "slides", "ppt", "deck", "slideshow", "발표자료", "슬라이드"
-  Auto-triggers: presentation, slides, deck, keynote, pitch, ppt
+  Triggers: presentation, slides, ppt, deck, slideshow, keynote, pitch, 발표자료, 슬라이드
 ---
 
 # HTML Slides -- Universal Presentation Generator
