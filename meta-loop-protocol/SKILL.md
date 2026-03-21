@@ -2,7 +2,6 @@
 name: meta-loop-protocol
 description: "Meta Loop Protocol — Judgment framework for long-running autonomous /loop tasks. Installs hook scripts and external memory files to prevent Context Drift, Monotonic Escalation, Literal Execution, and Session Amnesia in AI coding agents. Windows (Git Bash) compatible."
 user-invocable: true
-disable-model-invocation: true
 ---
 
 # Meta Loop Protocol
