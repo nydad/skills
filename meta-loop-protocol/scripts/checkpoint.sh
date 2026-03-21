@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Meta Loop Protocol — Stop Hook (Windows compatible)
-# Reminds agent to checkpoint progress at iteration end
 
 MSYS_NO_PATHCONV=1
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-META_DIR="$PROJECT_ROOT/.meta-loop"
 
-[ ! -d "$META_DIR" ] && exit 0
+ROOT="$PWD"
+while [ "$ROOT" != "/" ] && [ "$ROOT" != "" ] && [ ! -d "$ROOT/.meta-loop" ]; do
+  ROOT="$(dirname "$ROOT")"
+done
+
+[ ! -d "$ROOT/.meta-loop" ] && exit 0
 
 cat <<'EOF'
 {
