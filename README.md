@@ -128,6 +128,31 @@ playwright-e2e/
     selectors-guide.md            # Selector strategies and waits
 ```
 
+### meta-loop-protocol
+
+Judgment framework for long-running autonomous `/loop` tasks.
+
+- Prevents 4 failure modes: Context Drift, Monotonic Escalation, Literal Execution, Session Amnesia
+- External memory system (WHY.md, BASELINE.md, PROGRESS.md, DECISIONS.md, AUDIT.md)
+- Auto self-audit via hook-triggered edit counter
+- Writer/Reviewer separation via subagents
+- Windows (Git Bash) compatible hooks
+
+**Triggers**: `/meta-loop-protocol` (manual invocation only)
+
+```
+meta-loop-protocol/
+  SKILL.md                        # Main skill definition
+  scripts/
+    check-progress.sh             # PreToolUse hook — progress tracking
+    checkpoint.sh                 # Stop hook — iteration checkpoint
+    audit-trigger.sh              # PostToolUse hook — self-audit trigger
+  references/
+    runtime-protocol.md           # Detailed per-iteration protocol
+    self-audit.md                 # Self-audit procedure
+    loop-prompt-template.md       # Loop prompt template
+```
+
 ## Installation
 
 Copy any skill directory into `~/.claude/skills/` to make it available globally in Claude Code:
@@ -140,6 +165,7 @@ cp -r excalidraw-arch ~/.claude/skills/
 cp -r mermaid-diagram ~/.claude/skills/
 cp -r design-system ~/.claude/skills/
 cp -r playwright-e2e ~/.claude/skills/
+cp -r meta-loop-protocol ~/.claude/skills/
 
 # Or install all skills
 cp -r */ ~/.claude/skills/
