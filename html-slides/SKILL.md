@@ -1,11 +1,12 @@
 ---
 name: html-slides
+disable-model-invocation: true
 description: |
   Generates professional single-file HTML presentations with a rich dark-theme design system.
-  Use when creating slide decks, pitch presentations, keynote talks, training materials, or conference talks.
-  Glass-morphism cards, 13 color themes, 25+ components, responsive, accessible.
-
-  Triggers: presentation, slides, ppt, deck, slideshow, keynote, pitch, 발표자료, 슬라이드
+  Use this skill whenever the user wants to create slides, a presentation, pitch deck, keynote talk, training material,
+  or conference talk — even if they just say "발표자료 만들어줘", "슬라이드 좀", "PPT 만들어", "프레젠테이션 준비해줘".
+  Glass-morphism cards, 13 color themes, 25+ components, responsive, accessible, keyboard/touch navigation.
+  Also triggers on: presentation, slides, ppt, deck, slideshow, keynote, pitch, 발표, 프레젠테이션.
 ---
 
 # HTML Slides -- Universal Presentation Generator
@@ -19,6 +20,12 @@ Works for any topic: tech talks, business pitches, training, reports, keynotes.
 - Converting text content to visual slides
 - Technical talks, conferences, training materials, quarterly reports
 - Any request mentioning: PPT, slides, presentation, deck, 발표자료, 슬라이드
+
+## Codex Compatibility
+
+- Default to local planning and research with shell and web tools.
+- Only use `spawn_agent` when the user explicitly asks for delegation or parallel agent work.
+- Treat any agent table below as a reusable research-track template.
 
 ## Generation Workflow (2 Phases)
 
@@ -48,6 +55,18 @@ Before generating HTML, output this planning table so the structure is visible:
 | 7 | Close | blue | closing | Call to action |
 
 *(Adapt rows to actual slide count decided in step 1.)*
+
+### Phase 1.5: Content Research (for unfamiliar topics)
+
+When creating slides on a topic you lack deep knowledge about, run parallel research tracks before HTML assembly. In Codex, do this locally unless the user explicitly asked for delegation.
+
+**Research tracks:**
+| Track | Focus |
+|-------|-------|
+| Content Researcher | Find 5 key statistics, 3 expert quotes, and the main arguments that must appear in the deck. |
+| Visual Reference | Find 3 exemplary presentations or visual references about [TOPIC]. Extract reusable visual patterns and data-viz ideas. |
+
+Skip this phase if the topic is well-known or user provided all content.
 
 ### Phase 2: HTML Assembly
 
@@ -92,6 +111,24 @@ Before generating HTML, output this planning table so the structure is visible:
 `surface` (dark) | `light` (white) | `in-blue` `in-navy` `in-indigo` `in-violet` `in-rose` `in-mint` `in-teal` `in-cyan` `in-amber` `in-orange`
 
 See `references/design-tokens.md` for full color values.
+
+## Quick Theme Selector
+
+Answer 2 questions to pick your theme:
+
+**Q1: What's the mood?**
+| Mood | Section Theme | Content Theme |
+|------|--------------|---------------|
+| Professional/Corporate | navy / blue | surface / in-blue |
+| Technical/Engineering | cyan / teal | surface / in-teal |
+| Creative/Inspiring | violet / indigo | in-violet / in-indigo |
+| Urgent/Important | rose / orange | in-rose / in-orange |
+| Positive/Growth | mint | in-mint |
+
+**Q2: How many sections?**
+- 3-4 sections -> Pick 2 colored themes + surface
+- 5-6 sections -> Pick 3 colored themes + surface
+- 7+ sections -> Pick 4 colored themes max + surface alternating
 
 ## Component Quick Index
 
@@ -148,6 +185,18 @@ See `references/slide-patterns.md` for complete HTML snippets.
 | Success | mint | in-mint |
 | Warning/Risk | orange / rose | in-orange / in-rose |
 | Strategy | amber | in-amber |
+
+## Large Presentation Strategy
+
+> **Single Write > 800 lines -> UND_ERR_SOCKET.** Always use chunked pattern for 20+ slide decks.
+
+```
+Write skeleton (CSS + Script + first 5 slides, ~600 lines)
+  -> Edit x N (insert remaining slides in groups of 3-5)
+  -> Verify (check total slide count matches plan)
+```
+
+For delegated generation or very large decks, include: "Use chunked write: skeleton first, then edit per slide group."
 
 ## Validation Checklist
 

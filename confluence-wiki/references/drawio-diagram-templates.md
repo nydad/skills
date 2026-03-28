@@ -215,7 +215,7 @@ shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAl
 
 > Covers "Architecture Overview" in SKILL.md §1.2. Use for system topology, cloud infrastructure, and high-level service maps.
 
-**pageSize: 1200x800**
+**Content Size (권장): 1200x800** (page="0"이므로 pageWidth/pageHeight 아님 — 셀 좌표 범위 기준)
 
 **Layered zone containers (top → bottom or outside → inside):**
 ```

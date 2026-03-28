@@ -1,11 +1,12 @@
 ---
 name: mermaid-diagram
+disable-model-invocation: true
 description: |
   Generates Mermaid diagrams for architecture, flowcharts, sequences, ERDs, and 20+ diagram types.
-  Use when visualizing processes, data models, API interactions, timelines, or any structure that benefits from a diagram.
-  Analyzes content to select the optimal diagram type. Outputs Markdown code blocks or standalone .mmd files.
-
-  Triggers: mermaid, diagram, flowchart, sequence diagram, ERD, 다이어그램, 플로차트, 시퀀스 다이어그램
+  Use this skill whenever the user needs to visualize anything — processes, data models, API flows, timelines,
+  system architecture, or relationships — even if they just say "그려줘", "다이어그램", "구조 보여줘",
+  "flow 그려", or "시각화해줘". Analyzes content to auto-select the optimal diagram type.
+  Also triggers on: mermaid, flowchart, sequence, ERD, class diagram, gantt, mindmap, C4, 플로차트, 시퀀스.
 ---
 
 # Mermaid Diagram Generator
@@ -82,6 +83,18 @@ Before generating Mermaid syntax, output this planning summary:
 | Alternative sequence syntax | `zenuml` | -- |
 | Infrastructure / cloud architecture | `architecture-beta` | -- |
 | Task board / kanban | `kanban` | -- |
+
+### Auto-Selection Shortcut
+
+If the user doesn't specify a diagram type, use these heuristics:
+- User describes **steps/process** → `flowchart TD`
+- User describes **API calls between services** → `sequenceDiagram`
+- User describes **database tables** → `erDiagram`
+- User describes **states/transitions** → `stateDiagram-v2`
+- User describes **timeline/schedule** → `gantt` or `timeline`
+- User describes **hierarchy/categories** → `mindmap`
+- User describes **system components** → `C4Context` or `C4Container`
+- User says "비교" or "compare" → `quadrantChart` or `xychart-beta`
 
 **Selection heuristic:** When multiple types could work, prefer the one that most directly maps to the data structure. For example, use `erDiagram` for data models even if a `classDiagram` could technically represent the same thing.
 

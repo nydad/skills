@@ -1,15 +1,30 @@
 ---
 name: design-system
+disable-model-invocation: true
 description: |
   Generates complete design systems tailored to project context, industry, and audience.
-  Use when starting a new project, refreshing a brand, standardizing UI styles, or capturing an existing design into reusable tokens.
-  Produces design tokens (CSS/Tailwind/JSON), color palettes, typography pairings, and component guidelines.
-  Supports 30+ UI styles with industry-specific reasoning.
-
-  Triggers: design system, design tokens, UI style, color palette, typography, 디자인 시스템, 디자인 토큰
+  Use this skill whenever the user wants design tokens, a color palette, typography pairing, UI style guide,
+  or any visual foundation for a project — even if they just say "디자인 시스템 만들어", "색상 팔레트 추천해줘",
+  "UI 스타일 정해줘", "디자인 토큰 생성", or "make it look professional". Also triggers on: brand refresh,
+  visual identity, Tailwind config, CSS variables, component guidelines, 브랜드 디자인, 타이포그래피.
+  Supports 30+ UI styles with industry-specific reasoning. Outputs CSS/Tailwind/JSON tokens.
 ---
 
 # Design System Generator
+
+**Table of Contents**
+- When to Use
+- Generation Workflow (3 Phases)
+- UI Style Categories (Quick Reference)
+- Industry to Style Mapping
+- Output Formats
+- Color Palette Generation Rules
+- Typography Scale
+- Spacing Scale
+- Design System Capture Mode
+- Validation Checklist
+- Common Mistakes
+- Reference Loading Guide
 
 Generate complete, implementation-ready design systems tailored to project context, industry, audience, and brand personality. Outputs design tokens, color palettes, typography, spacing, component guidelines, and style documentation.
 
@@ -21,6 +36,13 @@ Generate complete, implementation-ready design systems tailored to project conte
 - Capturing an existing UI's visual aesthetics into a reusable specification
 - Standardizing styles across multiple projects or teams
 - Any request mentioning: design system, design tokens, UI style, color palette, typography scale
+
+## Codex Compatibility
+
+- Default to local analysis and research with shell and web tools.
+- Only use `spawn_agent` when the user explicitly asks for delegation or parallel agent work.
+- Treat any agent table below as a reusable research-track template, not a delegation requirement.
+- Use current-year or exact-date language for trend research instead of hardcoded years.
 
 ## Generation Workflow (3 Phases)
 
@@ -63,6 +85,19 @@ Based on Phase 1 analysis, make reasoned choices for each design dimension:
 5. **Border radius** -- Consistent radius scale matching chosen style
 6. **Shadows** -- Elevation system (sm, md, lg, xl)
 7. **Breakpoints** -- Responsive breakpoints for target devices
+
+### Phase 2.5: Parallel Research (Optional — for unfamiliar domains)
+
+When the target industry or style is unfamiliar, run parallel research tracks. In Codex, do this locally unless the user explicitly asked for delegation.
+
+**Research tracks:**
+| Track | Focus |
+|-------|-------|
+| Industry Researcher | Research current design trends for [INDUSTRY]. Find 3 reference products or sites with concrete screenshots or descriptions. |
+| Accessibility Checker | Find WCAG AA requirements and any industry-specific accessibility constraints for [INDUSTRY]. |
+| Competitor Scanner | Find 3 competitor products in [INDUSTRY]. Extract the design patterns they consistently share. |
+
+Use findings to inform Phase 3 token generation. Skip if domain is well-known.
 
 ### Phase 3: Output Generation
 
@@ -171,6 +206,14 @@ Every palette must include:
 - Interactive elements: minimum 3:1 against adjacent colors
 - Always provide dark mode variants with equivalent contrast
 
+**Dark Mode Generation (mandatory):**
+For every light-mode token, generate a dark-mode equivalent:
+- Background: invert neutral scale (50<>950, 100<>900, etc.)
+- Primary: keep hue, adjust lightness (+10-15% for dark backgrounds)
+- Text: swap to light neutrals (neutral-100 on neutral-900 bg)
+- Borders: reduce opacity by 30% for subtler appearance
+- Shadows: switch to lighter glows or reduce opacity to near-zero
+
 > Full industry-tailored palettes: `references/color-palettes.md`
 
 ## Typography Scale
@@ -229,6 +272,16 @@ When analyzing an existing UI (screenshot, URL, or codebase):
 4. **Catalog components** -- list UI components with their visual properties
 5. **Document patterns** -- note recurring layouts, card styles, button variants
 6. **Generate tokens** -- output in requested format matching extracted values
+
+## Quick Capture Mode
+
+When analyzing an existing UI (screenshot or URL), use this accelerated flow:
+1. **Extract** — Identify primary (1), secondary (1), accent (1), neutral scale
+2. **Match** — Find closest style category from UI Style Categories
+3. **Generate** — Output tokens in detected tech stack format
+4. **Diff** — Show "extracted vs recommended" with improvement suggestions
+
+This mode skips Phase 1 interview — go straight to extraction.
 
 ## Validation Checklist
 

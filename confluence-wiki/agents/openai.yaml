@@ -1,0 +1,4 @@
+interface:
+  display_name: "Confluence Wiki"
+  short_description: "Draft Confluence pages and draw.io diagrams"
+  default_prompt: "Use $confluence-wiki to draft a Confluence architecture page with paste-ready markup."

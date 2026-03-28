@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mermaid Diagram"
+  short_description: "Create Mermaid diagrams for flows and architecture"
+  default_prompt: "Use $mermaid-diagram to turn a process or architecture description into Mermaid syntax."

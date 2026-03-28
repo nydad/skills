@@ -1,14 +1,29 @@
 ---
 name: playwright-e2e
+disable-model-invocation: true
 description: |
   Generates Playwright E2E test suites by analyzing application structure, routes, and components.
-  Use when adding E2E tests, setting up visual regression, creating page objects, or building test infrastructure for web apps.
-  Adaptive test generation based on app framework (React, Next.js, Vue, etc.) and testing requirements.
-
-  Triggers: playwright, e2e test, end-to-end, visual regression, integration test, E2E 테스트, 플레이라이트
+  Use this skill whenever the user wants E2E tests, integration tests, visual regression tests, or test infrastructure
+  for any web app — even if they just say "테스트 만들어", "E2E 추가해줘", "페이지 테스트", "UI 테스트 작성해줘".
+  Adaptive generation for React, Next.js, Vue, Angular, Svelte. Includes page objects, fixtures, a11y checks.
+  Also triggers on: playwright, e2e, end-to-end, visual regression, 플레이라이트, 통합테스트, 자동화 테스트.
 ---
 
 # Playwright E2E -- Adaptive Test Suite Generator
+
+**Table of Contents**
+- When to Use
+- Generation Workflow (3 Phases)
+- Test Type Decision Matrix
+- Framework Detection and Adaptation
+- Page Object Pattern
+- Test Structure Quick Reference
+- Selector Priority
+- API Mocking Patterns
+- Configuration Template
+- Validation Checklist
+- Common Mistakes
+- Reference Loading Guide
 
 Generate comprehensive Playwright E2E test suites by analyzing application structure, routes, and components. Produces page objects, fixtures, visual regression tests, accessibility checks, and full configuration -- adapted to the specific framework and testing needs.
 
@@ -21,11 +36,30 @@ Generate comprehensive Playwright E2E test suites by analyzing application struc
 - Building test infrastructure: fixtures, helpers, configuration
 - Any request mentioning: playwright, e2e, end-to-end, visual regression, integration test
 
+## Codex Compatibility
+
+- Default to local codebase analysis with shell commands and targeted file reads.
+- Only use `spawn_agent` when the user explicitly asks for delegation or parallel agent work.
+- Treat any agent table below as a reusable scan plan, not a delegation requirement.
+
 ## Generation Workflow (3 Phases)
 
 > **You are an adaptive testing agent.** Every test suite should be uniquely shaped by the application's architecture, routes, components, and risk profile. Test count, pattern selection, assertion depth, and coverage strategy must all adapt to context -- never produce cookie-cutter tests.
 
 ### Phase 1: App Analysis (understand before generating)
+
+### Phase 1 Acceleration: Parallel Codebase Scan
+
+For large apps (50+ routes), run the analysis in parallel tracks to speed up discovery:
+
+**Scan tracks:**
+| Track | Task |
+|-------|------|
+| Route Scanner | Find all routes or pages in the app. List URL patterns and component files. |
+| Test Auditor | Find existing test files, current coverage, and testing frameworks already in use. |
+| API Mapper | Find all API endpoints called by the frontend. List URL patterns and methods. |
+
+For small apps (<20 routes), skip this and do inline analysis.
 
 1. **Scan the project** to detect framework, router, and key dependencies:
    - Package.json: framework (React, Next.js, Vue, Angular, Svelte), test deps
@@ -277,13 +311,17 @@ export default defineConfig({
 **Always read first:**
 - This SKILL.md -- core workflow, decision matrix, and patterns
 
-**Load for test pattern recipes:**
-- `references/test-patterns.md` -- Detailed patterns for auth, forms, visual, a11y, and more
+**Load for test pattern recipes (by category):**
+- `references/test-patterns-auth-forms.md` -- Load when generating auth, form, navigation, or routing tests
+- `references/test-patterns-visual-a11y.md` -- Load when generating interactive component, visual regression, or accessibility tests
+- `references/test-patterns-data-api.md` -- Load when generating data display, API mock, error state, or performance tests
 
 **Load for selector strategy details:**
-- `references/selectors-guide.md` -- Complete selector hierarchy, wait strategies, anti-patterns
+- `references/selectors-guide.md` -- Load when user needs help with selectors or locator strategies
 
 ## References
 
-- `references/test-patterns.md` -- Common E2E test patterns organized by scenario with code snippets
+- `references/test-patterns-auth-forms.md` -- Auth (login/logout/OAuth/session), forms (validation/wizard/upload/dynamic), navigation (routing/deep-linking/back-forward)
+- `references/test-patterns-visual-a11y.md` -- Interactive components (modals/dropdowns/drag-drop/tabs), visual regression (screenshots/viewports/thresholds), accessibility (axe-core/keyboard/focus)
+- `references/test-patterns-data-api.md` -- Data display (tables/infinite-scroll/search), API integration (mocking/errors/loading), performance (web vitals/throttling)
 - `references/selectors-guide.md` -- Selector strategies, wait patterns, locator chaining, anti-patterns

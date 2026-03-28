@@ -1,0 +1,4 @@
+interface:
+  display_name: "Playwright E2E"
+  short_description: "Generate Playwright end-to-end test suites"
+  default_prompt: "Use $playwright-e2e to build an end-to-end Playwright test suite for this app."

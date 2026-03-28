@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML Slides"
+  short_description: "Generate polished single-file HTML presentations"
+  default_prompt: "Use $html-slides to create a presentation as a polished single HTML file."
