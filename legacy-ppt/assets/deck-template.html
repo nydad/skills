@@ -1,0 +1,1588 @@
+<title>ORBIT 운영 고도화 계획</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/*FONT-FACE*/@font-face{font-family:"Pretendard";src:url(data:font/woff2;base64,__PRETENDARD__) format("woff2");font-weight:45 920;font-style:normal;font-display:swap}/*END-FONT-FACE*/
+
+/* Ink Ledger 덱 템플릿. 레이아웃: 1600×900 고정 캔버스를 화면에 맞춰 축소. 좌우 88px 여백, 상단 브레드크럼·제목·거버닝 메시지 띠,
+   본문 영역 1424×550(top 248 ~ bottom 102), 하단 출처·쪽번호. 어두운 레터박스 위 흰 슬라이드의 단일 룩이라 다크 모드 분기 없음 */
+:root{
+  --ink:#0B1F3A;      /* 제목, 핵심 블록, 표지·간지 */
+  --text:#1E2836;     /* 본문 */
+  --elec:#2E5BE8;     /* 강조 단 하나, 신규 */
+  --soft:#8FA8EE;     /* 보조 계열 */
+  --ice:#E9EEFC;      /* 강조 틴트, 변경 */
+  --mist:#F3F5F8;     /* 패널, 계층 */
+  --slate:#5B6779;    /* 보조 텍스트 */
+  --line:#DDE2E9;     /* 헤어라인 */
+  --steel:#98A2B3;    /* 출처, 흐린 텍스트 */
+  --issue:#D2483A;    /* 문제점·장애에만 */
+  --issue-t:#FCE8E5;
+  --paper:#FFFFFF;
+  --stage:#0C1424;    /* 레터박스 */
+  --stage-2:#17223A;
+  --stage-fg:#AEB8CB;
+  --sans:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--stage);color:var(--stage-fg);font-family:var(--sans);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--soft);outline-offset:2px}
+
+/* ───────── 무대 ───────── */
+.app{height:100%;display:flex;flex-direction:column}
+.viewport{flex:1;position:relative;min-height:0;margin-top:14px}
+.stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0}
+.frame{position:absolute;inset:0;pointer-events:none}
+.slide{pointer-events:none}
+.slide.is-active{pointer-events:auto}
+.navbar{flex:none;height:54px;display:flex;align-items:center;gap:20px;padding-bottom:env(safe-area-inset-bottom,0px);font-size:13px}
+.bar-title{flex:none;color:var(--stage-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28%}
+.prog{flex:1;display:flex;gap:10px;align-items:center;min-width:0}
+.prog-g{display:flex;gap:3px;flex:var(--n)}
+.prog i{flex:1;height:4px;border-radius:2px;background:var(--stage-2);cursor:pointer;transition:background .25s}
+.prog i.done{background:#3B4C70}
+.prog i.cur{background:var(--soft)}
+.ctrl{flex:none;display:flex;align-items:center;gap:6px}
+.ibtn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;color:var(--stage-fg)}
+.ibtn:hover{background:var(--stage-2);color:#fff}
+.ibtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.count{min-width:62px;text-align:center;font-variant-numeric:tabular-nums;color:#fff;font-weight:600}
+.kbd-hint{color:#5D6A84;white-space:nowrap}
+
+/* ───────── 슬라이드 공통 ───────── */
+.slide{position:absolute;left:0;top:0;width:1600px;height:900px;background:var(--paper);color:var(--text);font-size:20px;line-height:1.55;overflow:hidden;
+  letter-spacing:-.005em;opacity:0;visibility:hidden;transform:translateX(26px);
+  transition:opacity .45s var(--ease),transform .45s var(--ease),visibility 0s linear .45s;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.slide.before{transform:translateX(-26px)}
+.slide.is-active{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.slide.dark{background:var(--ink);color:#fff}
+.s-head{position:absolute;left:88px;right:88px;top:50px}
+.crumb{font-size:16px;font-weight:600;color:var(--elec);letter-spacing:.02em}
+.s-title{margin:8px 0 0;font-size:38px;line-height:1.24;font-weight:700;letter-spacing:-.025em;color:var(--ink);text-wrap:balance}
+.gmsg{margin:20px 0 0;position:relative;background:var(--ice);border-radius:8px;padding:17px 28px 17px 54px;font-size:23px;line-height:1.45;font-weight:500;color:var(--ink);letter-spacing:-.015em}
+.gmsg::before{content:"";position:absolute;left:26px;top:50%;width:10px;height:10px;margin-top:-5px;background:var(--elec);border-radius:2px}
+.gmsg b{font-weight:700;color:var(--elec)}
+.gmsg b.r{color:var(--issue)}
+.s-body{position:absolute;left:88px;right:88px;top:248px;bottom:102px}
+.source{position:absolute;left:88px;right:88px;bottom:56px;font-size:15px;color:var(--steel)}
+.foot{position:absolute;left:88px;right:88px;bottom:22px;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--steel)}
+.foot .pg{font-weight:700;color:var(--slate);font-variant-numeric:tabular-nums}
+
+.h3{font-size:21px;font-weight:650;color:var(--ink);letter-spacing:-.015em;line-height:1.3}
+.unit{font-size:15px;font-weight:400;color:var(--steel);margin-left:10px;letter-spacing:0}
+.cap{font-size:15px;font-weight:600;color:var(--slate);letter-spacing:.01em}
+.mono{font-family:var(--mono);font-size:.84em;letter-spacing:-.01em}
+.num{font-variant-numeric:tabular-nums}
+b.hl{font-weight:700;color:var(--elec)}
+b.r{font-weight:700;color:var(--issue)}
+.ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ul>li{position:relative;padding-left:20px}
+.ul>li::before{content:"";position:absolute;left:2px;top:.66em;width:7px;height:7px;background:var(--elec);border-radius:1.5px}
+.ul.sub>li::before{width:9px;height:1.5px;top:.8em;background:var(--slate);border-radius:0}
+
+/* 등장 모션: 첫 이동 이후에만 켜짐(처음 열린 화면은 완성 상태) */
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.anim .slide.is-active [data-a]{animation:rise .6s var(--ease) backwards;animation-delay:calc(140ms + var(--i,0) * 65ms)}
+.anim .slide.is-active .e-label{animation:fade .6s var(--ease) backwards;animation-delay:calc(320ms + var(--i,0) * 65ms)}
+.anim .slide.is-active .edges{animation:fade .6s var(--ease) backwards;animation-delay:calc(260ms + var(--i,0) * 65ms)}
+
+/* ───────── 노드 (아키텍처 그림 공통) ───────── */
+.node{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1px;
+  background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:8px 12px;min-width:0;transition:opacity .25s,box-shadow .25s,background .25s,border-color .25s}
+.node b{font-weight:650;color:var(--ink);font-size:19px;line-height:1.3;letter-spacing:-.015em}
+.node small{font-size:15px;color:var(--slate);line-height:1.35}
+.node.change{background:var(--ice);border-color:var(--elec)}
+.node.new{background:var(--elec);border-color:var(--elec)}
+.node.new b{color:#fff}
+.node.new small{color:#D9E2FF}
+.node.core{background:var(--ink);border-color:var(--ink)}
+.node.core b{color:#fff}
+.node.core small{color:var(--soft)}
+.node.ext{border:1.5px dashed var(--steel)}
+.node.ext b{color:var(--slate)}
+.node.ext small{color:var(--steel)}
+.node.muted{background:var(--mist);border-color:transparent}
+.node.issue{border:1.5px solid var(--issue)}
+.node.db{border-radius:50% / 16px;padding-top:20px}
+.node.db::before{content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:30px;border:inherit;border-radius:50%;pointer-events:none}
+.node.new.db::before{background:rgba(255,255,255,.14)}
+.node.change.db::before{background:rgba(46,91,232,.07)}
+.bdg{position:absolute;top:-12px;right:-12px;width:26px;height:26px;border-radius:50%;background:var(--issue);color:#fff;font:700 14px/26px var(--sans);text-align:center;font-style:normal;box-shadow:0 0 0 3px var(--mist);z-index:3}
+.bdg.fix{background:var(--elec);cursor:help}
+.bdg[data-tip]:hover::after{content:attr(data-tip);position:absolute;right:-6px;bottom:34px;white-space:nowrap;background:var(--ink);color:#fff;font-size:14px;font-weight:500;line-height:1.3;padding:7px 11px;border-radius:6px;box-shadow:0 8px 24px rgba(11,31,58,.22)}
+.tipped{position:relative}
+.tipped[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);white-space:nowrap;background:var(--ink);color:#fff;font-size:14px;font-weight:500;line-height:1.3;padding:7px 11px;border-radius:6px;box-shadow:0 8px 24px rgba(11,31,58,.22);z-index:30;pointer-events:none}
+
+/* 연결선 */
+.edges-host{position:relative}
+.edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:4}
+.edge path{fill:none;stroke:var(--ink);stroke-width:1.6;transition:opacity .25s;marker-end:url(#ah-ink)}
+.edge.both path{marker-start:url(#ah-ink)}
+.edge.soft path{stroke:var(--slate);stroke-dasharray:6 5;marker-end:url(#ah-soft)}
+.edge.soft.both path{marker-start:url(#ah-soft)}
+.edge.live path{stroke:var(--elec);stroke-width:2;marker-end:url(#ah-live)}
+.edge.cut path{stroke:var(--issue);stroke-dasharray:4 5;opacity:.55;marker-end:url(#ah-cut)}
+.edge.nohead path{marker-end:none}
+.e-label{position:absolute;transform:translate(-50%,-50%);background:var(--paper);color:var(--slate);font-size:14px;line-height:1.3;padding:2px 7px;border-radius:4px;white-space:nowrap;z-index:5;text-align:center;transition:opacity .25s}
+.e-label.yes{color:var(--elec);font-weight:700}
+@keyframes flow{to{stroke-dashoffset:-22}}
+.hovering .edge:not(.on){opacity:.18}
+.hovering .e-label:not(.on){opacity:.25}
+.edge.on path{stroke-dasharray:7 4;animation:flow .7s linear infinite}
+.hovering [data-hover]:not(.on){opacity:.4}
+[data-hover]{cursor:default}
+
+/* 버튼·세그먼트 */
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:36px}
+.seg{display:inline-flex;background:var(--mist);border-radius:8px;padding:3px}
+.seg button{border:0;background:transparent;padding:5px 14px;border-radius:6px;font-size:15px;font-weight:600;color:var(--slate);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(11,31,58,.14)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:15px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer}
+.btn:hover{border-color:var(--elec);color:var(--elec)}
+.btn svg{width:13px;height:13px;fill:currentColor}
+.legend{display:flex;gap:18px;align-items:center;font-size:15px;color:var(--slate)}
+.legend i{display:inline-block;width:20px;height:13px;border-radius:3px;margin-right:7px;vertical-align:-1px;border:1px solid var(--line);background:var(--paper)}
+.legend i.change{background:var(--ice);border-color:var(--elec)}
+.legend i.new{background:var(--elec);border-color:var(--elec)}
+.legend i.ext{border:1.5px dashed var(--steel)}
+.legend i.soft{background:var(--soft);border-color:var(--soft)}
+.legend i.ink{background:var(--ink);border-color:var(--ink)}
+.legend i.issue{border:1.5px solid var(--issue)}
+.legend i.dia{width:12px;height:12px;margin:0 11px 0 4px;border:0;background:var(--ink);transform:rotate(45deg)}
+
+/* ───────── 표지 ───────── */
+.cover .stamp{position:absolute;right:88px;top:56px;border:1px solid var(--steel);color:var(--steel);font-size:15px;font-weight:600;padding:5px 16px;border-radius:3px;letter-spacing:.05em}
+.cover .cv-mark{position:absolute;right:64px;bottom:20px;font-size:380px;line-height:.8;font-weight:200;color:rgba(255,255,255,.055);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.cover .cv-main{position:absolute;left:104px;top:226px;width:1040px}
+.kicker{font-size:16px;font-weight:600;color:var(--soft);letter-spacing:.24em}
+.cv-title{margin:22px 0 0;font-size:66px;line-height:1.2;font-weight:700;letter-spacing:-.035em}
+.cv-sub{margin:30px 0 0;font-size:28px;font-weight:400;color:var(--soft);letter-spacing:-.02em}
+.cover .cv-meta{position:absolute;left:104px;bottom:112px;display:flex;gap:30px;font-size:20px;font-weight:500}
+.cover .cv-note{position:absolute;left:104px;bottom:70px;font-size:15px;color:var(--steel)}
+
+/* ───────── 목차 ───────── */
+.toc .toc-side{position:absolute;left:0;top:0;bottom:0;width:540px;background:var(--ink);color:#fff}
+.toc-h{position:absolute;left:88px;top:92px;font-size:60px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.toc-k{position:absolute;left:90px;top:168px;font-size:21px;color:var(--steel)}
+.toc-deck{position:absolute;left:90px;bottom:64px;font-size:16px;line-height:1.6;color:var(--steel)}
+.toc-list{position:absolute;left:640px;right:88px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center}
+.tl-sec{display:grid;grid-template-columns:58px 1fr;padding:20px 0;border-bottom:1px solid var(--line)}
+.tl-sec:last-child{border-bottom:0}
+.tl-num{font-size:30px;font-weight:600;color:var(--elec);line-height:1.25}
+.tl-title{font-size:30px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1.25;grid-column:2}
+.tl-items{grid-column:2;margin-top:10px;display:grid;gap:2px}
+.tl-item{display:flex;justify-content:space-between;align-items:center;gap:20px;border:0;background:none;padding:3px 0;font-size:20px;color:var(--slate);cursor:pointer;text-align:left}
+.tl-item span:last-child{font-size:18px;color:var(--steel);font-variant-numeric:tabular-nums}
+.tl-item:hover{color:var(--ink)}
+.tl-item:hover span:last-child{color:var(--elec)}
+
+/* ───────── 간지 ───────── */
+.divider .dv-part{position:absolute;left:104px;top:240px;font-size:18px;font-weight:600;color:var(--soft);letter-spacing:.22em}
+.divider .dv-num{position:absolute;left:92px;top:270px;font-size:230px;line-height:1;font-weight:200;color:var(--elec);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.divider .dv-title{position:absolute;left:104px;top:530px;margin:0;font-size:54px;font-weight:700;letter-spacing:-.03em}
+.divider .dv-desc{position:absolute;left:104px;top:610px;width:620px;margin:0;font-size:21px;line-height:1.65;color:var(--steel)}
+.divider .dv-list{position:absolute;left:860px;right:88px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center}
+.dv-sec{display:grid;grid-template-columns:52px 1fr;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.12);color:var(--steel)}
+.dv-sec:last-child{border-bottom:0}
+.dv-sec .n{font-size:23px;font-weight:500}
+.dv-sec .t{font-size:23px;font-weight:500;grid-column:2}
+.dv-sec.cur .n{color:var(--elec);font-weight:700}
+.dv-sec.cur .t{color:#fff;font-weight:700}
+.dv-items{grid-column:2;margin-top:8px;display:grid}
+.dv-item{display:flex;justify-content:space-between;border:0;background:none;padding:4px 0;font-size:19px;color:var(--soft);cursor:pointer;text-align:left}
+.dv-item span:last-child{color:var(--steel);font-variant-numeric:tabular-nums}
+.dv-item:hover{color:#fff}
+.dv-sec button.t{border:0;background:none;padding:0;text-align:left;color:inherit;cursor:pointer;font:inherit}
+
+/* ───────── 3. 요약 ───────── */
+.sum{display:grid;grid-template-rows:repeat(6,1fr);height:100%}
+.sr{display:grid;grid-template-columns:184px 1fr;gap:34px;align-items:center;border-bottom:1px solid var(--line);min-height:0}
+.sr:last-child{border-bottom:0}
+.sr-l{align-self:stretch;margin-block:6px;display:flex;align-items:center;padding-left:22px;background:var(--mist);border-radius:7px;font-weight:650;color:var(--ink);font-size:20px}
+.sr .ul{gap:2px}
+.chips4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.chips4 .node{height:62px}
+.chev-row{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.chev{height:56px;display:flex;align-items:center;gap:12px;padding-left:44px;background:var(--ink);color:#fff;font-weight:650;font-size:19px;
+  clip-path:polygon(0 0,calc(100% - 24px) 0,100% 50%,calc(100% - 24px) 100%,0 100%,24px 50%)}
+.chev:first-child{padding-left:24px;clip-path:polygon(0 0,calc(100% - 24px) 0,100% 50%,calc(100% - 24px) 100%,0 100%)}
+.chev small{font-size:15px;font-weight:500;color:var(--soft)}
+.chev.end{background:var(--elec)}
+.chev.end small{color:#D9E2FF}
+.stats4{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{padding-left:26px;border-left:1px solid var(--line)}
+.stat:first-child{padding-left:0;border-left:0}
+.stat strong{display:block;font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums}
+.stat strong.hl{color:var(--elec)}
+.stat span{font-size:16px;color:var(--slate)}
+
+/* ───────── 5. 시스템 구성도 ───────── */
+.ctx-grid{display:grid;grid-template-columns:290px 140px 1fr 140px 300px;height:408px}
+.ctx-col{display:flex;flex-direction:column;gap:14px}
+.ctx-col .stack{flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.ctx-col.l .node{height:96px}
+.ctx-col.r .node{height:76px}
+.ctx-col.l{grid-column:1}
+.ctx-col.r{grid-column:5}
+.platform{grid-column:3;background:var(--ink);border-radius:10px;color:#fff;padding:22px 24px 18px;display:flex;flex-direction:column;gap:16px;margin-top:30px}
+.core-h{font-size:27px;font-weight:700;letter-spacing:-.02em}
+.core-h span{font-size:19px;font-weight:500;color:var(--soft);margin-left:12px}
+.mods{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:12px}
+.mod{background:rgba(255,255,255,.07);border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.mod b{font-size:19px;font-weight:650}
+.mod small{font-size:15px;color:var(--soft)}
+.core-f{text-align:center;font-size:14px;color:var(--soft)}
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);margin-top:28px;border-top:1.5px solid var(--ink);padding-top:16px}
+.kpi-strip div{padding-left:28px;border-left:1px solid var(--line)}
+.kpi-strip div:first-child{border-left:0}
+.kpi-strip strong{display:block;font-size:36px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi-strip strong.r{color:var(--issue)}
+.kpi-strip strong.hl{color:var(--elec)}
+.kpi-strip span{font-size:17px;color:var(--slate)}
+
+/* ───────── 6·10. 계층 아키텍처 ───────── */
+.arch-wrap{display:grid;grid-template-columns:1fr 410px;gap:44px;height:100%}
+.layers{display:flex;flex-direction:column;gap:10px}
+.layer{display:grid;grid-template-columns:92px 1fr;align-items:center;background:var(--mist);border-radius:9px;padding:0 18px 0 20px;height:var(--h);transition:opacity .25s}
+.ly-l{font-size:18px;font-weight:600;color:var(--slate)}
+.ly-n{display:flex;gap:14px;height:calc(var(--h) - 22px)}
+.ly-n>.node{flex:var(--r,1)}
+.pools{position:relative;display:flex;flex-direction:column;gap:8px;height:calc(var(--h) - 20px);justify-content:center;transition:opacity .25s}
+.pools-h{display:flex;align-items:baseline;gap:12px;font-size:15px;color:var(--slate)}
+.pools-h b{font-size:18px;color:var(--ink);font-weight:650}
+.pools-h .lg{margin-left:auto;display:flex;gap:14px;align-items:center}
+.sq{display:inline-block;width:11px;height:11px;border-radius:2px;border:1px solid var(--line);background:var(--paper);margin-right:6px;vertical-align:-1px}
+.sq.busy{background:var(--ink);border-color:var(--ink)}
+.pool-box{position:relative;display:grid;grid-template-columns:repeat(12,1fr);gap:6px;padding:6px;border:1.5px solid var(--issue);border-radius:8px}
+.pool-box i{font-style:normal;height:34px;border-radius:4px;border:1px solid var(--line);background:var(--paper);font-size:13px;color:var(--slate);display:flex;align-items:center;justify-content:center}
+.pool-box i.busy{background:var(--ink);border-color:var(--ink);color:#fff}
+.issues{display:flex;flex-direction:column;min-width:0}
+.iss{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column}
+.iss li{display:grid;grid-template-columns:38px 1fr;padding:13px 10px 13px 8px;border-bottom:1px solid var(--line);border-radius:7px;cursor:pointer;transition:background .2s,opacity .25s}
+.iss li:last-child{border-bottom:0}
+.iss li:hover,.iss li.on{background:var(--mist)}
+.iss .bdg{position:static;box-shadow:none;margin-top:1px}
+.iss b{font-size:20px;font-weight:650;color:var(--ink);letter-spacing:-.015em}
+.iss p{margin:2px 0 0;font-size:16px;line-height:1.5;color:var(--slate)}
+.hint{margin-top:auto;font-size:14px;color:var(--steel)}
+.focusing [data-k]:not(.on){opacity:.3}
+.focusing .iss li[data-k]:not(.on){opacity:.45}
+.node.on.issue,.pools.on .pool-box{box-shadow:0 0 0 5px rgba(210,72,58,.16)}
+.tobe .layer{grid-template-columns:92px 1fr}
+
+/* ───────── 7. 운영 지표 ───────── */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tile{border:1px solid var(--line);border-radius:9px;padding:16px 22px 14px;display:flex;flex-direction:column;gap:2px}
+.tile .t-l{font-size:16px;color:var(--slate)}
+.tile .t-v{font-size:38px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1.2;font-variant-numeric:tabular-nums}
+.tile .t-v small{font-size:22px;font-weight:600;margin-left:3px}
+.tile .t-d{font-size:15px;color:var(--slate)}
+.tile .t-d.bad{color:var(--issue);font-weight:600}
+.charts2{display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-top:30px}
+.chart-host{position:relative;margin-top:10px}
+svg.chart{display:block;overflow:visible}
+svg.chart text{font-family:var(--sans);fill:var(--slate)}
+svg.chart .lab{font-size:15px}
+svg.chart .val{font-size:15px;fill:var(--text);font-weight:500}
+svg.chart .axis{stroke:var(--line);stroke-width:1}
+svg.chart .grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 4}
+svg.chart .bar{fill:var(--soft);transition:fill .2s}
+svg.chart .bar.hi{fill:var(--elec)}
+svg.chart .bar-g:hover .bar{fill:#6F8EEA}
+svg.chart .bar-g:hover .bar.hi{fill:#1F49D6}
+svg.chart .hit{fill:transparent}
+svg.chart .line{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linejoin:round}
+svg.chart .area{fill:url(#areaGrad)}
+svg.chart .pt{fill:var(--paper);stroke:var(--ink);stroke-width:2.2}
+svg.chart .pt.last{fill:var(--ink)}
+svg.chart .target{stroke:var(--elec);stroke-width:1.5;stroke-dasharray:6 5}
+svg.chart .target-l{fill:var(--elec);font-size:15px;font-weight:700}
+svg.chart .cross{stroke:var(--steel);stroke-width:1;stroke-dasharray:3 3;opacity:0;transition:opacity .15s}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:15px;line-height:1.35;padding:8px 12px;border-radius:7px;white-space:nowrap;transform:translate(-50%,calc(-100% - 12px));opacity:0;transition:opacity .15s;z-index:6;box-shadow:0 10px 28px rgba(11,31,58,.25)}
+.tip b{font-weight:700}
+.tip span{color:var(--soft);margin-right:8px}
+.tip.show{opacity:1}
+@keyframes grow{from{transform:scaleY(0)}to{transform:none}}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.anim .is-active svg.chart .bar{transform-box:fill-box;transform-origin:50% 100%;animation:grow .8s var(--ease) backwards;animation-delay:calc(220ms + var(--i) * 45ms)}
+.anim .is-active svg.chart .val,.anim .is-active svg.chart .pt,.anim .is-active svg.chart .pl{animation:fade .4s ease backwards;animation-delay:calc(500ms + var(--i) * 45ms)}
+.anim .is-active svg.chart .line{stroke-dasharray:1;animation:draw 1.3s var(--ease) backwards;animation-delay:.25s}
+.anim .is-active svg.chart .area{animation:fade 1s ease backwards;animation-delay:.6s}
+
+/* ───────── 8. 장애 타임라인 ───────── */
+.tl{position:relative;height:262px}
+.tl-axis{position:absolute;left:0;right:0;height:2px;background:var(--ink);border-radius:1px}
+.tl-band{position:absolute;height:26px;background:var(--issue-t);border-radius:5px;transform-origin:0 50%}
+.anim .is-active .tl-band{animation:bandgrow 1.4s var(--ease) backwards;animation-delay:.3s}
+@keyframes bandgrow{from{transform:scaleX(0)}to{transform:none}}
+.tl-band-l{position:absolute;transform:translateX(-50%);font-size:16px;font-weight:700;color:var(--issue);white-space:nowrap}
+.ev{position:absolute;width:200px}
+.ev .dot{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 3px var(--paper);transition:transform .2s}
+.ev.issue .dot{background:var(--issue)}
+.ev.ok .dot{background:var(--elec)}
+.ev .stem{position:absolute;width:1px;background:var(--line)}
+.ev .lbl{position:absolute;width:200px;line-height:1.35}
+.ev .tm{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--ink)}
+.ev.issue .tm{color:var(--issue)}
+.ev.ok .tm{color:var(--elec)}
+.ev .et{display:block;font-size:18px;font-weight:650;color:var(--ink);letter-spacing:-.015em}
+.ev .ed{display:block;font-size:15px;color:var(--slate)}
+.ev:hover .dot{transform:scale(1.35)}
+.panels{display:grid;grid-template-columns:5fr 7fr;gap:28px;margin-top:14px;height:246px}
+.panel{border:1px solid var(--line);border-radius:10px;padding:18px 24px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel .h3{padding-bottom:12px;border-bottom:1px solid var(--line)}
+.cause dt{font-weight:650;color:var(--ink);font-size:18px}
+.cause dd{margin:0 0 10px;color:var(--text);font-size:18px}
+.acts{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.acts li{display:grid;grid-template-columns:58px 1fr auto;gap:14px;align-items:center;font-size:18px}
+.chip{display:inline-flex;justify-content:center;align-items:center;height:26px;border-radius:13px;font-size:13px;font-weight:700;border:1px solid var(--ink);color:var(--ink)}
+.chip.done{background:var(--ink);color:#fff}
+.acts .when{font-family:var(--mono);font-size:15px;color:var(--slate)}
+
+/* ───────── 11. 처리 흐름 ───────── */
+.lanes{height:400px;margin-top:12px}
+.lane{position:absolute;left:0;right:0;height:80px;display:grid;grid-template-columns:176px 1fr;gap:16px}
+.lane-l{background:var(--mist);border-radius:7px;margin:4px 0;padding-left:18px;display:flex;flex-direction:column;justify-content:center;line-height:1.3}
+.lane-l b{font-size:18px;font-weight:650;color:var(--ink)}
+.lane-l small{font-size:14px;color:var(--slate)}
+.lane-a{border-bottom:1px solid var(--line)}
+.lane.last .lane-a{border-bottom:0}
+.step{position:absolute;width:150px;height:52px;padding:4px 8px;z-index:3}
+.step b{font-size:17px}
+.step small{font-size:13px}
+.step .sb{position:absolute;left:-11px;top:-11px;width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font:700 13px/24px var(--sans);text-align:center;font-style:normal;box-shadow:0 0 0 3px var(--paper)}
+.step-t{position:absolute;width:150px;text-align:center;font-size:14px;font-weight:700;color:var(--elec);font-family:var(--mono)}
+.step.run{box-shadow:0 0 0 5px rgba(46,91,232,.25);transform:translateY(-2px)}
+.step.run .sb{background:var(--elec)}
+.playing .step:not(.run):not(.past){opacity:.45}
+.elapsed{font-family:var(--mono);font-size:16px;color:var(--slate);min-width:230px;text-align:right}
+.tbar{display:grid;grid-template-columns:176px 1fr;gap:16px;margin-top:18px;align-items:center}
+.tbar-l{font-size:15px;color:var(--slate);line-height:1.2;padding-left:18px}
+.tbar-l strong{display:block;font-size:26px;color:var(--ink);font-weight:700}
+.segs{display:flex;gap:3px;height:42px}
+.segs div{border-radius:6px;display:flex;align-items:center;padding:0 14px;font-size:16px;font-weight:650;white-space:nowrap;overflow:hidden;transform-origin:0 50%}
+.anim .is-active .segs div{animation:bandgrow .9s var(--ease) backwards;animation-delay:calc(300ms + var(--i) * 150ms)}
+
+/* ───────── 12. 배포 구성도 ───────── */
+.dep{height:500px;margin-top:14px}
+.dep .abs{position:absolute}
+.zone{position:absolute;border:1.5px dashed var(--steel);border-radius:12px;transition:background .35s,border-color .35s}
+.zone-chip{position:absolute;left:22px;top:-15px;background:var(--ink);color:#fff;font-size:15px;font-weight:650;padding:3px 14px;border-radius:5px}
+.zone-chip.b{background:var(--slate)}
+.dep .node{position:absolute}
+.dep .node b{font-size:18px}
+.runner{position:absolute;background:var(--elec);border-radius:7px;padding:12px 18px;color:#fff;display:flex;flex-direction:column;gap:10px;transition:opacity .35s,filter .35s}
+.runner b{font-size:18px;font-weight:650}
+.runner b span{font-size:15px;font-weight:500;color:#D9E2FF;margin-left:10px}
+.runner .cells{display:flex;gap:5px}
+.runner .cells i{width:16px;height:26px;border-radius:3px;background:rgba(255,255,255,.72)}
+.gap-note{position:absolute;text-align:center;font-size:14px;color:var(--steel);line-height:1.35}
+.down-pill{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);background:var(--issue);color:#fff;font-size:20px;font-weight:700;padding:10px 22px;border-radius:999px;opacity:0;transition:opacity .35s,transform .35s;z-index:6;white-space:nowrap}
+
+/* ───────── 두 상태 보기: 컨테이너에 data-view="base|alt", 버튼은 .seg[data-view-target] ───────── */
+.alt-alert,.alt-dim,.alt-promote{transition:opacity .35s,filter .35s,box-shadow .35s,background .35s,border-color .35s}
+[data-view="alt"] .alt-alert{background:rgba(210,72,58,.04);border-color:var(--issue)}
+[data-view="alt"] .alt-alert .down-pill{opacity:1;transform:translate(-50%,-50%) scale(1)}
+[data-view="alt"] .alt-dim{opacity:.32;filter:grayscale(1)}
+[data-view="alt"] .alt-promote{box-shadow:0 0 0 5px rgba(46,91,232,.22)}
+[data-view="alt"] .alt-solid{border-style:solid;border-color:var(--elec)}
+[data-view="alt"] .edge.alt-cut path{stroke:var(--issue);stroke-dasharray:4 5;opacity:.55;marker-end:url(#ah-cut);marker-start:none}
+[data-view="alt"] .edge.alt-live path{stroke:var(--elec);stroke-width:2;stroke-dasharray:none;marker-end:url(#ah-live)}
+[data-view="alt"] .e-label.alt-cut{opacity:.35}
+[data-view="alt"] .e-label.alt-live{color:var(--elec);font-weight:700}
+.alt-diff[data-view="alt"] .ly-n>.node:not(.new):not(.change):not(.ext){opacity:.25}
+.alt-diff[data-view="alt"] .ly-n>.node.ext{opacity:.55}
+.status{font-size:16px;color:var(--slate)}
+.status b{color:var(--ink)}
+.status b.live{color:var(--elec)}
+
+/* ───────── 14. 전환 계획 ───────── */
+.mx{display:grid;grid-template-columns:150px repeat(4,1fr);grid-template-rows:70px 86px 150px 100px 100px;column-gap:8px;row-gap:8px;height:100%}
+.mx-l{background:var(--mist);border-radius:7px;display:flex;align-items:center;padding-left:18px;font-weight:650;color:var(--ink);font-size:19px}
+.mx-l.r{color:var(--issue)}
+.mx-c{padding:12px 14px 12px 16px;border-bottom:1px solid var(--line);font-size:18px;line-height:1.5;transition:background .2s;border-radius:6px 6px 0 0;min-width:0}
+.mx-c.last{border-bottom:0}
+.mx-h{display:flex;flex-direction:column;justify-content:center;padding-left:46px;background:var(--ink);color:#fff;
+  clip-path:polygon(0 0,calc(100% - 26px) 0,100% 50%,calc(100% - 26px) 100%,0 100%,26px 50%)}
+.mx-h.first{padding-left:22px;clip-path:polygon(0 0,calc(100% - 26px) 0,100% 50%,calc(100% - 26px) 100%,0 100%)}
+.mx-h.end{background:var(--elec)}
+.mx-h b{font-size:20px;font-weight:700}
+.mx-h small{font-size:15px;color:var(--soft)}
+.mx-h.end small{color:#D9E2FF}
+.mx-c.col-on{background:var(--mist)}
+.traffic{height:16px;border-radius:8px;background:var(--line);overflow:hidden;margin-top:6px}
+.traffic i{display:block;height:100%;width:var(--p);background:var(--elec);border-radius:8px;transform-origin:0 50%}
+.anim .is-active .traffic i{animation:bandgrow 1s var(--ease) backwards;animation-delay:calc(300ms + var(--i) * 120ms)}
+.traffic-l{font-size:15px;color:var(--slate);margin-top:8px}
+.mx .ul{font-size:17px;gap:4px}
+
+/* ───────── 15. 운영 체계 ───────── */
+.ops{display:grid;grid-template-columns:600px 1fr;gap:64px;height:100%}
+.esc{height:550px}
+.esc .node{position:absolute}
+.esc .node b{font-size:18px}
+.diamond{position:absolute;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:650;color:var(--ink)}
+.diamond svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.diamond polygon{fill:var(--paper);stroke:var(--ink);stroke-width:1.6}
+.diamond span{position:relative}
+.raci{display:grid;grid-template-columns:210px repeat(5,1fr);margin-top:16px}
+.raci>div{height:58px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);transition:background .15s;font-size:18px}
+.raci>.rh{height:56px;font-weight:650;color:var(--ink);font-size:17px;border-bottom:1.5px solid var(--ink);text-align:center;line-height:1.25}
+.raci>.ra{justify-content:flex-start;padding-left:12px;color:var(--ink)}
+.raci>.rh.ra{justify-content:flex-start}
+.raci>div.xhl{background:var(--mist)}
+.rc{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.rc.R{background:var(--ink);color:#fff}
+.rc.A{background:var(--elec);color:#fff}
+.rc.C{border:1.5px solid var(--ink);color:var(--ink)}
+.rc.I{color:var(--steel)}
+.raci-lg{display:flex;gap:22px;margin-top:16px;font-size:15px;color:var(--slate);align-items:center}
+.raci-lg .rc{width:24px;height:24px;font-size:13px;display:inline-flex;margin-right:6px;vertical-align:middle}
+
+/* ───────── 16. 기대효과 ───────── */
+.ben{display:grid;grid-template-columns:1fr 480px;gap:64px;height:100%}
+.bt{display:grid;grid-template-columns:230px 110px 120px 1fr 104px;align-items:center;margin-top:16px}
+.bt>div{height:84px;display:flex;align-items:center;border-bottom:1px solid var(--line)}
+.bt>.bh{height:46px;font-size:16px;font-weight:650;color:var(--ink);border-bottom:1.5px solid var(--ink)}
+.bt .c{justify-content:center}
+.bt .rgt{justify-content:flex-end}
+.bt .m{font-size:19px;font-weight:650;color:var(--ink);padding-left:4px}
+.bt .a{font-size:19px;color:var(--slate)}
+.bt .t{font-size:22px;font-weight:700;color:var(--elec)}
+.bt .p{font-size:19px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.bars2{flex-direction:column;align-items:stretch!important;justify-content:center;gap:7px;padding:0 22px}
+.bars2 i{display:block;height:13px;border-radius:7px}
+.bars2 .as{background:var(--line);width:100%}
+.bars2 .to{background:var(--elec);width:var(--w);transition:width 1s var(--ease)}
+.anim .is-active .bars2 .to{animation:shrink 1.1s var(--ease) backwards;animation-delay:calc(350ms + var(--i) * 120ms)}
+@keyframes shrink{from{width:100%}to{width:var(--w)}}
+.bt .note{font-size:16px;color:var(--slate);padding:0 22px}
+.asks{display:flex;flex-direction:column;gap:18px;margin-top:16px}
+.ask{background:var(--mist);border-radius:10px;padding:22px 26px;display:grid;grid-template-columns:auto 1fr auto;column-gap:16px;row-gap:6px;align-items:center}
+.ask .no{font-size:38px;font-weight:200;color:var(--elec);line-height:1}
+.ask .ok{justify-self:start;background:var(--ink);color:#fff;font-size:13px;font-weight:700;padding:3px 12px;border-radius:12px}
+.ask .fig{font-size:32px;font-weight:700;color:var(--ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ask h4{grid-column:1 / 4;margin:10px 0 2px;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.ask .ul{grid-column:1 / 4;font-size:17px;color:var(--text)}
+
+/* ───────── 17. 컴포넌트 명세 ───────── */
+.spec{width:100%;border-collapse:collapse;font-size:17px;margin-top:12px}
+.spec th{height:46px;font-size:16px;font-weight:650;color:var(--ink);text-align:left;padding:0 14px;border-bottom:1.5px solid var(--ink)}
+.spec td{height:35px;padding:0 14px;border-bottom:1px solid var(--line);transition:opacity .2s,background .2s}
+.spec td.grp{background:var(--mist);font-weight:650;color:var(--ink);text-align:center;border-bottom:1px solid var(--steel)}
+.spec tr.gl td{border-bottom-color:var(--steel)}
+.spec td.nm{font-weight:650;color:var(--ink)}
+.spec td.tech{font-family:var(--mono);font-size:15px;color:var(--slate)}
+.spec td.k{text-align:center}
+.spec .kind{display:inline-block;min-width:52px;text-align:center;font-size:14px;font-weight:700;padding:3px 10px;border-radius:12px}
+.spec .kind.new{background:var(--elec);color:#fff}
+.spec .kind.change{background:var(--ice);color:var(--ink);box-shadow:inset 0 0 0 1px var(--elec)}
+.spec .kind.keep{color:var(--slate);box-shadow:inset 0 0 0 1px var(--line)}
+.spec .kind.ext{color:var(--steel);border:1px dashed var(--steel);padding:2px 9px}
+.spec tbody tr:hover td:not(.grp){background:#F8F9FB}
+.spec.filtering tbody tr:not(.match) td:not(.grp){opacity:.28}
+.spec td.c{text-align:center;color:var(--slate)}
+
+/* ───────── 전체 보기 ───────── */
+.overview{position:fixed;inset:0;z-index:50;background:rgba(8,13,24,.96);overflow-y:auto;
+  padding:calc(28px + env(safe-area-inset-top,0px)) max(28px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) max(28px,env(safe-area-inset-left,0px))}
+.ov-head{display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:15px;margin:0 auto 18px;max-width:1440px}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px 18px;max-width:1440px;margin:0 auto}
+.ov-item{border:0;padding:0;background:none;cursor:pointer;text-align:left;color:var(--stage-fg)}
+.ov-thumb{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:6px;outline:2px solid transparent;outline-offset:3px;transition:outline-color .2s;max-width:100%}
+.ov-item:hover .ov-thumb,.ov-item.cur .ov-thumb{outline-color:var(--soft)}
+.ov-thumb .slide{opacity:1;visibility:visible;transform-origin:0 0;transition:none;box-shadow:none}
+.ov-cap{display:flex;gap:10px;margin-top:8px;font-size:13px}
+.ov-cap b{color:#fff;font-variant-numeric:tabular-nums}
+
+/* ───────── 좁은 화면: 세로 목록 ───────── */
+.list body,.list{overflow:auto}
+.list .app{height:auto}
+.list .viewport{flex:none;margin-top:0}
+.list .stage{position:static;width:auto;height:auto;transform:none!important}
+.list .frame{position:relative;inset:auto;margin:16px 0;overflow-x:auto;border-radius:4px}
+.list .frame .slide{opacity:1;visibility:visible;transform-origin:0 0;transition:none}
+.list .frame,.list .frame .slide{pointer-events:auto}
+.list .navbar{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  .slide{transition:opacity .2s linear,visibility 0s linear .2s;transform:none!important}
+  .anim .slide.is-active *{animation:none!important}
+  .edge.on path{animation:none}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="ah-ink" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0.8 L10,5 L0,9.2 z" style="fill:var(--ink)"/></marker>
+    <marker id="ah-soft" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0.8 L10,5 L0,9.2 z" style="fill:var(--slate)"/></marker>
+    <marker id="ah-live" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0.8 L10,5 L0,9.2 z" style="fill:var(--elec)"/></marker>
+    <marker id="ah-cut" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0.8 L10,5 L0,9.2 z" style="fill:var(--issue)"/></marker>
+    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ink);stop-opacity:.12"/><stop offset="1" style="stop-color:var(--ink);stop-opacity:0"/></linearGradient>
+  </defs>
+</svg>
+
+<!-- 덱 설정: 하단 바 제목, 본문 슬라이드 꼬리말 -->
+<script type="application/json" id="deck-config">
+{ "title": "ORBIT 2027 운영 고도화 계획 (안)", "footer": "대외비 &nbsp;|&nbsp; 개발플랫폼 P/J" }
+</script>
+
+<div class="app">
+<div class="viewport" id="vp"><div class="stage" id="stage">
+
+<!-- ═══════════ 1. 표지 ═══════════ -->
+<section class="slide dark cover" data-title="표지">
+  <div class="stamp">대외비</div>
+  <div class="cv-mark" aria-hidden="true">2027</div>
+  <div class="cv-main">
+    <div class="kicker" data-a>PLATFORM OPERATIONS PLAN</div>
+    <h1 class="cv-title" data-a>ORBIT 통합 개발 플랫폼<br>2027 운영 고도화 계획 (안)</h1>
+    <p class="cv-sub" data-a>단일 구성에서 이중화·탄력 실행 구조로 전환</p>
+  </div>
+  <div class="cv-meta" data-a><span>2026. 10.</span><span>개발플랫폼 P/J</span></div>
+  <div class="cv-note">※ 본 자료의 플랫폼명, 구성, 수치는 레이아웃 검토용 예시임</div>
+</section>
+
+<!-- ═══════════ 2. 목차 (섹션 목록은 엔진이 data-section에서 생성) ═══════════ -->
+<section class="slide toc" data-title="목차">
+  <div class="toc-side">
+    <div class="toc-h">Contents</div>
+    <div class="toc-k">목차</div>
+    <div class="toc-deck">ORBIT 통합 개발 플랫폼<br>2027 운영 고도화 계획 (안)</div>
+  </div>
+  <div class="toc-list"></div>
+</section>
+
+<!-- ═══════════ 3. Executive Summary ═══════════ -->
+<section class="slide content" data-title="Executive Summary">
+  <header class="s-head">
+    <div class="crumb">Summary</div>
+    <h2 class="s-title">Executive Summary</h2>
+    <p class="gmsg">k8s 공유 러너 풀과 컨트롤러 이중화로 피크 대기를 18분에서 <b>5분</b>으로 줄이고 가용률 <b>99.9%</b> 달성</p>
+  </header>
+  <div class="s-body">
+    <div class="sum">
+      <div class="sr" data-a><div class="sr-l">현황</div>
+        <ul class="ul"><li>개발자 620명 · 저장소 1,850개, 일 평균 빌드 <b class="hl">14,200건</b> (전년 대비 +38%)</li><li>가용률 99.62%로 목표 99.9%에 미달</li></ul></div>
+      <div class="sr" data-a><div class="sr-l">문제점</div>
+        <ul class="ul"><li>단일 Jenkins 컨트롤러와 팀별 고정 러너 구조로 피크 대기 <b class="r">18분</b> (1년 새 2배)</li><li>9월 14일 컨트롤러 메모리 고갈로 <b class="r">3시간 12분</b>간 전체 빌드 중단</li></ul></div>
+      <div class="sr" data-a><div class="sr-l">목표 아키텍처</div>
+        <div class="chips4">
+          <div class="node change"><b>Jenkins 컨트롤러 ×2</b><small>Active-Standby</small></div>
+          <div class="node new"><b>빌드 스케줄러</b><small>우선순위 · 팀 쿼터</small></div>
+          <div class="node new"><b>k8s 공유 러너 풀</b><small>120~400 Pod 오토스케일</small></div>
+          <div class="node new"><b>빌드 트레이싱</b><small>단계별 소요 시간</small></div>
+        </div></div>
+      <div class="sr" data-a><div class="sr-l">전환 계획</div>
+        <div class="chev-row">
+          <div class="chev">P0 준비 <small>'26.4Q</small></div>
+          <div class="chev">P1 시범 30% <small>'27.1Q</small></div>
+          <div class="chev">P2 확대 70% <small>'27.2Q</small></div>
+          <div class="chev end">P3 전면 100% <small>'27.3Q</small></div>
+        </div></div>
+      <div class="sr" data-a><div class="sr-l">기대효과</div>
+        <div class="stats4">
+          <div class="stat"><strong class="hl">5분</strong><span>피크 대기 (현재 18분)</span></div>
+          <div class="stat"><strong>13분</strong><span>리뷰 결과 회신 (현재 31분)</span></div>
+          <div class="stat"><strong>10분</strong><span>장애 복구 RTO (현재 4시간)</span></div>
+          <div class="stat"><strong>-33%</strong><span>러너 운영비 (연 15억 원 절감)</span></div>
+        </div></div>
+      <div class="sr" data-a><div class="sr-l">요청 사항</div>
+        <ul class="ul"><li>k8s 러너 노드 40대 도입 <b class="hl">32억 원</b>, 운영 당번 <b class="hl">2명</b> 증원 (24시간 3교대)</li></ul></div>
+    </div>
+  </div>
+  <div class="source">※ 수치는 예시이며, 상세 근거는 본문 및 Appendix 참조</div>
+</section>
+
+<!-- ═══════════ 4. 간지 Ⅰ (내용은 엔진이 생성) ═══════════ -->
+<section class="slide dark divider" data-section="현황 및 문제점" data-num="Ⅰ" data-title="Ⅰ. 현황 및 문제점"
+  data-desc="플랫폼 구성과 아키텍처의 구조적 한계를&lt;br&gt;운영 지표와 장애 사례로 확인"></section>
+
+<!-- ═══════════ 5. 시스템 구성도: 사용자 → 플랫폼 → 외부 시스템 ═══════════ -->
+<section class="slide content" data-title="시스템 구성도">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">시스템 구성도</h2>
+    <p class="gmsg">개발자 620명과 자동화 봇 40개가 리뷰·빌드·배포를 <b>ORBIT 하나</b>로 처리하고, 외부 시스템 4종과 연동</p>
+  </header>
+  <div class="s-body">
+    <div class="ctx-grid edges-host" id="ctx" data-hover-links>
+      <div class="ctx-col l" data-a>
+        <div class="cap">사용자</div>
+        <div class="stack">
+          <div class="node muted" id="ctx-dev" data-hover><b>개발자</b><small>620명 · 웹 포털, CLI</small></div>
+          <div class="node muted" id="ctx-rev" data-hover><b>리뷰어 · QA</b><small>90명</small></div>
+          <div class="node muted" id="ctx-bot" data-hover><b>자동화 봇</b><small>40개 · REST API</small></div>
+        </div>
+      </div>
+      <div class="platform" id="ctx-core" data-a>
+        <div class="core-h">ORBIT<span>통합 개발 플랫폼</span></div>
+        <div class="mods">
+          <div class="mod"><b>형상관리</b><small>Git 저장소 1,850개</small></div>
+          <div class="mod"><b>코드 리뷰</b><small>Gerrit</small></div>
+          <div class="mod"><b>CI 파이프라인</b><small>Jenkins</small></div>
+          <div class="mod"><b>빌드 러너</b><small>VM 180대</small></div>
+          <div class="mod"><b>아티팩트 저장소</b><small>420TB</small></div>
+          <div class="mod"><b>관측</b><small>서버 지표 · 로그</small></div>
+        </div>
+        <div class="core-f mono">Gerrit · Jenkins · Artifactory · Prometheus</div>
+      </div>
+      <div class="ctx-col r" data-a>
+        <div class="cap">외부 시스템</div>
+        <div class="stack">
+          <div class="node ext" id="ctx-jira" data-hover><b>Jira</b><small>이슈 상태 연동</small></div>
+          <div class="node ext" id="ctx-sso" data-hover><b>SSO · LDAP</b><small>인증 · 권한</small></div>
+          <div class="node ext" id="ctx-scan" data-hover><b>보안 스캐너</b><small>소스 · 이미지 점검</small></div>
+          <div class="node ext" id="ctx-msg" data-hover><b>메신저 · 메일</b><small>빌드 결과 알림</small></div>
+        </div>
+      </div>
+    </div>
+    <script type="application/json" data-kind="edges" data-for="ctx">[
+      { "a": "ctx-dev", "as": "r", "b": "ctx-core", "bs": "l", "by": "a", "label": "<span class=\"mono\">push</span>" },
+      { "a": "ctx-rev", "as": "r", "b": "ctx-core", "bs": "l", "by": "a", "label": "리뷰 · 투표" },
+      { "a": "ctx-bot", "as": "r", "b": "ctx-core", "bs": "l", "by": "a", "label": "API 호출" },
+      { "a": "ctx-core", "as": "r", "ay": "b", "b": "ctx-jira", "bs": "l", "cls": "soft both", "label": "상태 동기화" },
+      { "a": "ctx-core", "as": "r", "ay": "b", "b": "ctx-sso", "bs": "l", "cls": "soft both", "label": "인증" },
+      { "a": "ctx-core", "as": "r", "ay": "b", "b": "ctx-scan", "bs": "l", "cls": "soft both", "label": "점검 요청" },
+      { "a": "ctx-core", "as": "r", "ay": "b", "b": "ctx-msg", "bs": "l", "cls": "soft", "label": "알림" }
+    ]</script>
+    <div class="kpi-strip" data-a>
+      <div><strong data-count="14200">14,200</strong><span>일 평균 빌드 (건)</span></div>
+      <div><strong data-count="1850">1,850</strong><span>저장소 (개)</span></div>
+      <div><strong>420TB</strong><span>아티팩트 저장량</span></div>
+      <div><strong class="r">99.62%</strong><span>가용률 (목표 99.9%)</span></div>
+    </div>
+  </div>
+  <div class="source">※ 사용자 수는 2026년 9월 월간 활성 계정 기준 / 박스에 마우스를 올리면 연결이 표시됨 / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 6. AS-IS 계층 아키텍처 + 문제점 목록 (data-focus로 서로 강조) ═══════════ -->
+<section class="slide content" data-title="AS-IS 아키텍처 및 문제점">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">AS-IS 아키텍처 및 문제점</h2>
+    <p class="gmsg">단일 컨트롤러와 팀별 고정 러너 구조가 <b class="r">대기 시간 증가</b>와 <b class="r">전체 장애</b>의 공통 원인</p>
+  </header>
+  <div class="s-body">
+    <div class="arch-wrap" data-focus>
+      <div class="layers">
+        <div class="layer" style="--h:70px" data-a><div class="ly-l">접근</div><div class="ly-n">
+          <div class="node"><b>웹 포털</b></div><div class="node"><b>REST API</b></div><div class="node"><b>CLI</b></div></div></div>
+        <div class="layer" style="--h:108px" data-a><div class="ly-l">서비스</div><div class="ly-n">
+          <div class="node"><b>Gerrit</b><small>코드 리뷰</small></div>
+          <div class="node issue" data-k="1" style="--r:1.25"><b>Jenkins 컨트롤러</b><small>단일 인스턴스</small><i class="bdg">1</i></div>
+          <div class="node"><b>Artifactory</b><small>아티팩트</small></div>
+          <div class="node" style="--r:.8"><b>알림 서버</b></div></div></div>
+        <div class="layer" style="--h:124px" data-a><div class="ly-l">실행</div>
+          <div class="pools" data-k="2">
+            <div class="pools-h"><b>빌드 러너 VM 180대</b><span>팀별 고정 풀 12개 · 풀당 15대</span><span class="lg"><span><i class="sq busy"></i>피크 포화</span><span><i class="sq"></i>유휴</span></span></div>
+            <div class="pool-box" data-cells="12" data-busy="0,1,4,6,7,10" data-label="팀"><i class="bdg">2</i></div>
+          </div></div>
+        <div class="layer" style="--h:112px" data-a><div class="ly-l">데이터</div><div class="ly-n" style="gap:26px">
+          <div class="node db issue" data-k="3"><b>PostgreSQL</b><small>단일 인스턴스</small><i class="bdg">3</i></div>
+          <div class="node db issue" data-k="4"><b>NFS 공유 스토리지</b><small>120TB</small><i class="bdg">4</i></div>
+          <div class="node db"><b>Elasticsearch</b><small>로그 30일</small></div></div></div>
+        <div class="layer" style="--h:70px" data-a><div class="ly-l">관측</div><div class="ly-n">
+          <div class="node issue" data-k="5"><b style="font-size:17px">서버 CPU · 메모리 지표만 수집, 빌드 단위 지표와 트레이스 없음</b><i class="bdg">5</i></div></div></div>
+      </div>
+      <aside class="issues" data-a>
+        <div class="h3">문제점</div>
+        <ol class="iss">
+          <li data-k="1"><i class="bdg">1</i><div><b>컨트롤러 단일 구성</b><p>재시작하면 전체 빌드 중단, 월 평균 2.3회</p></div></li>
+          <li data-k="2"><i class="bdg">2</i><div><b>러너 팀별 고정 할당</b><p>피크 대기 18분, 야간 가동률은 22%</p></div></li>
+          <li data-k="3"><i class="bdg">3</i><div><b>DB 단일 인스턴스</b><p>장애 시 수동 복구, RTO 4시간</p></div></li>
+          <li data-k="4"><i class="bdg">4</i><div><b>NFS 공유 스토리지</b><p>대형 빌드가 겹치면 빌드 시간 1.6배</p></div></li>
+          <li data-k="5"><i class="bdg">5</i><div><b>빌드 단위 관측 부재</b><p>실패 원인 분류에 건당 평균 40분</p></div></li>
+        </ol>
+        <div class="hint">항목을 가리키면 그림에서 위치가 강조됨</div>
+      </aside>
+    </div>
+  </div>
+  <div class="source">※ 2026년 9월 구성 기준 / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 7. 운영 지표: KPI 타일 + 막대·꺾은선 차트 ═══════════ -->
+<section class="slide content" data-title="운영 지표">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">운영 지표</h2>
+    <p class="gmsg">빌드량은 1년 새 38% 늘었는데 러너는 그대로여서 피크 대기가 9분에서 <b class="r">18분</b>으로 증가</p>
+  </header>
+  <div class="s-body">
+    <div class="tiles" data-a>
+      <div class="tile"><span class="t-l">일 평균 빌드</span><span class="t-v"><span data-count="14200">14,200</span><small>건</small></span><span class="t-d">전년 대비 +38%</span></div>
+      <div class="tile"><span class="t-l">빌드 성공률</span><span class="t-v"><span data-count="91.4" data-dec="1">91.4</span><small>%</small></span><span class="t-d bad">전년 대비 -2.1%p</span></div>
+      <div class="tile"><span class="t-l">피크 대기 시간</span><span class="t-v"><span data-count="18">18</span><small>분</small></span><span class="t-d bad">2025년 9월 9분</span></div>
+      <div class="tile"><span class="t-l">가용률</span><span class="t-v"><span data-count="99.62" data-dec="2">99.62</span><small>%</small></span><span class="t-d bad">목표 99.9% 미달</span></div>
+    </div>
+    <div class="charts2">
+      <div data-a><div class="h3">일 평균 빌드 건수<span class="unit">단위: 천 건</span></div><div class="chart-host" id="chBuilds"></div></div>
+      <div data-a><div class="h3">피크 시간 평균 대기<span class="unit">단위: 분</span></div><div class="chart-host" id="chWait"></div></div>
+    </div>
+    <script type="application/json" data-kind="chart" data-for="chBuilds">{
+      "type": "bar", "h": 344, "max": 16.5, "dec": 1, "unit": "천 건", "delta": "전월 대비", "hi": [11],
+      "labels": ["'25.10","11","12","'26.1","2","3","4","5","6","7","8","9"],
+      "full": ["2025.10","2025.11","2025.12","2026.01","2026.02","2026.03","2026.04","2026.05","2026.06","2026.07","2026.08","2026.09"],
+      "values": [10.3,10.6,10.1,11.0,11.4,12.0,12.3,12.9,13.2,13.6,13.9,14.2]
+    }</script>
+    <script type="application/json" data-kind="chart" data-for="chWait">{
+      "type": "line", "h": 344, "max": 21, "unit": "분", "target": 5, "targetLabel": "목표 5분",
+      "labels": ["'25.10","11","12","'26.1","2","3","4","5","6","7","8","9"],
+      "full": ["2025.10","2025.11","2025.12","2026.01","2026.02","2026.03","2026.04","2026.05","2026.06","2026.07","2026.08","2026.09"],
+      "values": [9,9,8,11,12,13,13,15,16,16,17,18]
+    }</script>
+  </div>
+  <div class="source">※ 기간 2025.10 ~ 2026.09, 피크 시간은 평일 10~12시 / 막대·점을 가리키면 값 표시 / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 8. 장애 타임라인 + 원인/대책 패널 ═══════════ -->
+<section class="slide content" data-title="주요 장애 경위">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">주요 장애 경위</h2>
+    <p class="gmsg">9월 14일 컨트롤러 메모리 고갈로 <b class="r">3시간 12분</b>간 전체 빌드가 멈췄고, 단일 구성이라 우회 경로가 없었음</p>
+  </header>
+  <div class="s-body">
+    <div class="h3" data-a>9월 14일(월) 장애 타임라인<span class="unit mono">09:42 ~ 13:10</span></div>
+    <div class="tl" id="tl" data-a></div>
+    <script type="application/json" data-kind="timeline" data-for="tl">{
+      "start": "09:36", "end": "13:16",
+      "band": { "from": "09:58", "to": "13:10", "label": "빌드 중단 3시간 12분", "at": "11:30" },
+      "events": [
+        { "t": "09:42", "title": "힙 사용률 95% 경보", "desc": "컨트롤러 메모리 경보 발생" },
+        { "t": "09:58", "title": "빌드 큐 정체 시작", "desc": "신규 빌드 접수 지연, 영향 시작", "kind": "issue" },
+        { "t": "10:15", "title": "장애 공지", "desc": "메신저 · 메일 전사 공지" },
+        { "t": "10:40", "title": "1차 재기동 실패", "desc": "플러그인 로딩 오류로 기동 중단", "kind": "issue" },
+        { "t": "11:30", "title": "문제 플러그인 비활성화", "desc": "비활성화 후 재기동 성공" },
+        { "t": "12:20", "title": "적체 2,100건 처리 시작", "desc": "우선순위 순으로 순차 실행" },
+        { "t": "13:10", "title": "정상화 확인", "desc": "장애 종료 선언", "kind": "ok" }
+      ]
+    }</script>
+    <div class="panels">
+      <div class="panel" data-a>
+        <div class="h3">원인</div>
+        <dl class="cause" style="margin:0">
+          <dt>직접 원인</dt><dd>플러그인 업데이트 뒤 빌드 로그 버퍼가 힙에 쌓여 메모리 고갈</dd>
+          <dt>근본 원인</dt><dd>컨트롤러가 1대라 재기동하는 동안 대체 경로가 없음</dd>
+        </dl>
+      </div>
+      <div class="panel" data-a>
+        <div class="h3">재발 방지 대책</div>
+        <ul class="acts">
+          <li><span class="chip done">완료</span><span>힙 경보 임계치를 95%에서 80%로 하향</span><span class="when">09.16</span></li>
+          <li><span class="chip done">완료</span><span>플러그인 업데이트 사전 검증 환경 운영</span><span class="when">09.30</span></li>
+          <li><span class="chip">진행</span><span>빌드 로그를 오브젝트 스토리지로 분리</span><span class="when">'27.1Q</span></li>
+          <li><span class="chip">진행</span><span>컨트롤러 Active-Standby 이중화</span><span class="when">'27.2Q</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="source">※ 장애 등급 1등급 (전사 빌드 중단) / 사후 보고서 IR-2609-03 / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 9. 간지 Ⅱ ═══════════ -->
+<section class="slide dark divider" data-section="목표 아키텍처" data-num="Ⅱ" data-title="Ⅱ. 목표 아키텍처"
+  data-desc="문제점 5건을 해소하는 목표 구조와&lt;br&gt;처리 흐름, 이중화 배포 구성을 정의"></section>
+
+<!-- ═══════════ 10. TO-BE 계층 아키텍처 (alt-diff: 변경점만 보기) ═══════════ -->
+<section class="slide content" data-title="TO-BE 아키텍처">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">TO-BE 아키텍처</h2>
+    <p class="gmsg">컨트롤러 이중화와 공유 러너 풀로 AS-IS 문제점 <b>5건</b>을 해소하고, 빌드 단위 관측 계층을 신설</p>
+  </header>
+  <div class="s-body">
+    <div class="layers tobe alt-diff" id="tobe" data-view="base">
+      <div class="layer" style="--h:72px" data-a><div class="ly-l">접근</div><div class="ly-n">
+        <div class="node"><b>웹 포털</b><small>대시보드</small></div>
+        <div class="node"><b>REST API</b><small>자동화 연동</small></div>
+        <div class="node"><b>CLI</b><small class="mono">orbit-cli</small></div>
+        <div class="node new"><b>AI 빌드 진단 봇</b><small>실패 원인 자동 분류</small></div></div></div>
+      <div class="layer" style="--h:104px" data-a><div class="ly-l">서비스</div><div class="ly-n">
+        <div class="node"><b>Gerrit</b><small>코드 리뷰</small></div>
+        <div class="node change" style="--r:1.15"><b>Jenkins 컨트롤러 ×2</b><small>Active-Standby</small><i class="bdg fix" data-tip="해소 ① 컨트롤러 단일 구성">1</i></div>
+        <div class="node new"><b>빌드 스케줄러</b><small>우선순위 · 팀 쿼터</small><i class="bdg fix" data-tip="해소 ② 러너 팀별 고정 할당">2</i></div>
+        <div class="node"><b>Artifactory</b><small>아티팩트</small></div>
+        <div class="node" style="--r:.8"><b>알림 서버</b></div></div></div>
+      <div class="layer" style="--h:98px" data-a><div class="ly-l">실행</div><div class="ly-n">
+        <div class="node new" style="--r:2.1"><b>k8s 공유 러너 풀</b><small>120~400 Pod 오토스케일 · 노드 40대 · 팀 구분 없이 공유</small><i class="bdg fix" data-tip="해소 ② 러너 팀별 고정 할당">2</i></div>
+        <div class="node change"><b>전용 VM 러너</b><small>40대 · HW 연동 빌드</small></div></div></div>
+      <div class="layer" style="--h:110px" data-a><div class="ly-l">데이터</div><div class="ly-n" style="gap:26px">
+        <div class="node db change"><b>PostgreSQL HA</b><small>Patroni 3노드</small><i class="bdg fix" data-tip="해소 ③ DB 단일 인스턴스">3</i></div>
+        <div class="node db new"><b>오브젝트 스토리지</b><small>S3 호환 · 센터별 3노드</small><i class="bdg fix" data-tip="해소 ④ NFS 공유 스토리지">4</i></div>
+        <div class="node db"><b>Elasticsearch</b><small>로그 90일</small></div>
+        <div class="node ext"><b>NFS 공유 스토리지</b><small>'27.3Q 폐기</small></div></div></div>
+      <div class="layer" style="--h:70px" data-a><div class="ly-l">관측</div><div class="ly-n">
+        <div class="node new"><b style="font-size:17px">빌드 트레이싱 · 지표 &nbsp; OpenTelemetry로 단계별 소요 시간 수집, Grafana 대시보드</b><i class="bdg fix" data-tip="해소 ⑤ 빌드 단위 관측 부재">5</i></div></div></div>
+    </div>
+    <div class="toolbar" style="margin-top:18px" data-a>
+      <div class="legend"><span><i></i>유지</span><span><i class="change"></i>변경</span><span><i class="new"></i>신규</span><span><i class="ext"></i>폐기 예정</span><span style="color:var(--steel)">번호 배지를 가리키면 해소하는 문제점 표시</span></div>
+      <div class="seg" role="group" aria-label="보기 방식" data-view-target="#tobe"><button type="button" data-value="base">전체</button><button type="button" data-value="alt">변경점만</button></div>
+    </div>
+  </div>
+  <div class="source">※ 번호는 해소하는 AS-IS 문제점 (p.6)</div>
+</section>
+
+<!-- ═══════════ 11. 처리 흐름 스윔레인 (data-kind="flow", 재생 버튼) ═══════════ -->
+<section class="slide content" data-title="빌드 처리 흐름">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">빌드 처리 흐름</h2>
+    <p class="gmsg">변경 업로드부터 결과 회신까지 7단계를 자동 처리하고, 단계별 소요 시간을 <b>트레이스</b>로 기록</p>
+  </header>
+  <div class="s-body">
+    <div class="toolbar" data-a>
+      <span class="cap">가로줄은 처리 계층, 번호는 처리 순서</span>
+      <div style="display:flex;align-items:center;gap:14px"><span class="elapsed" data-flow-elapsed="flow">경과 0초</span><button type="button" class="btn" data-flow-play="flow"><svg viewBox="0 0 10 10"><path d="M1.5 1 L9 5 L1.5 9 z"/></svg>흐름 재생</button></div>
+    </div>
+    <div class="lanes edges-host" id="flow" data-a></div>
+    <script type="application/json" data-kind="flow" data-for="flow">{
+      "lanes": [["개발자", ""], ["형상 · 리뷰", "Gerrit"], ["오케스트레이션", "컨트롤러 · 스케줄러"], ["실행", "k8s 러너 풀"], ["저장 · 관측", "Artifactory · 트레이싱"]],
+      "steps": [
+        { "lane": 0, "col": 0, "t": "변경 업로드", "s": "<span class=\"mono\">git push</span>" },
+        { "lane": 1, "col": 1, "t": "리뷰 등록", "s": "이벤트 발행" },
+        { "lane": 2, "col": 2, "t": "파이프라인 생성", "s": "우선순위 판정", "kind": "new", "time": "2초", "sec": 2 },
+        { "lane": 3, "col": 3, "t": "러너 Pod 할당", "s": "오토스케일", "kind": "new", "time": "40초", "sec": 40 },
+        { "lane": 3, "col": 4, "t": "빌드 · 테스트", "s": "병렬 실행", "kind": "new", "time": "11분", "sec": 660 },
+        { "lane": 4, "col": 5, "t": "산출물 업로드", "s": "트레이스 기록", "kind": "new", "time": "25초", "sec": 25 },
+        { "lane": 1, "col": 6, "t": "Verified 투표", "s": "결과 회신", "time": "5초", "sec": 5 }
+      ],
+      "end": { "lane": 0, "col": 6, "t": "결과 확인", "s": "메신저 알림" },
+      "done": "결과 회신 · 평균 13분 (대기 포함)"
+    }</script>
+    <div class="tbar" data-a>
+      <div class="tbar-l">평균 소요<strong class="num">13분</strong></div>
+      <div class="segs">
+        <div style="flex:1.2;background:var(--soft);color:var(--ink);--i:0">대기 1.2분</div>
+        <div style="flex:11;background:var(--elec);color:#fff;--i:1">빌드 · 테스트 11분 (85%)</div>
+        <div style="flex:.8;background:var(--ink);color:#fff;justify-content:center;padding:0;--i:2">0.8분</div>
+      </div>
+    </div>
+  </div>
+  <div class="source">※ 소요 시간은 시범 운영(저장소 120개, 2026.09) 평균값 / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 12. 배포 구성도 (data-view base/alt: 평시 ↔ 장애 전환) ═══════════ -->
+<section class="slide content" data-title="배포 구성도">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">배포 구성도</h2>
+    <p class="gmsg">주 센터와 백업 센터에 같은 구성을 두고, 컨트롤러·DB는 <b>10분</b> 안에 자동 전환되도록 구성</p>
+  </header>
+  <div class="s-body">
+    <div class="toolbar" data-a>
+      <div class="seg" role="group" aria-label="운영 상태" data-view-target="#dep"><button type="button" data-value="base">평시</button><button type="button" data-value="alt">주 센터 장애</button></div>
+      <div class="status"><span data-when="base"><b>평시</b> · 주 센터가 처리하고 백업 센터는 대기</span><span data-when="alt"><b class="live">백업 센터 전환 완료</b> · RTO 10분, RPO 15분 이내</span></div>
+    </div>
+    <div class="dep edges-host" id="dep" data-view="base" data-a>
+      <div class="node core" id="dp-gslb" style="left:612px;top:0;width:200px;height:62px"><b>GSLB · VIP</b><small>헬스체크 기반 전환</small></div>
+      <div class="zone alt-alert" style="left:0;top:112px;width:640px;height:388px"><span class="zone-chip">주 센터 (A동)</span><span class="down-pill">주 센터 장애</span></div>
+      <div class="zone alt-solid" style="left:784px;top:112px;width:640px;height:388px"><span class="zone-chip b">백업 센터 (B동)</span></div>
+
+      <div class="node alt-dim" id="dpA-ing" style="left:28px;top:144px;width:584px;height:48px"><b>인그레스 · <span class="mono">Nginx ×2</span></b></div>
+      <div class="node new alt-dim" id="dpA-sch" style="left:28px;top:214px;width:284px;height:70px"><b>빌드 스케줄러</b><small>×2</small></div>
+      <div class="node change alt-dim" id="dpA-ctl" style="left:328px;top:214px;width:284px;height:70px"><b>Jenkins 컨트롤러</b><small>Active</small></div>
+      <div class="runner alt-dim" id="dpA-run" style="left:28px;top:306px;width:584px;height:92px"><b>k8s 러너 클러스터<span>노드 24대</span></b><div class="cells" data-n="24"></div></div>
+      <div class="node db new alt-dim" id="dpA-obj" style="left:28px;top:420px;width:284px;height:70px"><b>오브젝트 스토리지</b><small>3노드</small></div>
+      <div class="node db change alt-dim" id="dpA-pg" style="left:328px;top:420px;width:284px;height:70px"><b>PostgreSQL</b><small>Primary + Replica</small></div>
+
+      <div class="node" id="dpB-ing" style="left:812px;top:144px;width:584px;height:48px"><b>인그레스 · <span class="mono">Nginx ×2</span></b></div>
+      <div class="node change alt-promote" id="dpB-ctl" style="left:812px;top:214px;width:284px;height:70px"><b>Jenkins 컨트롤러</b><small data-when="base">Standby</small><small data-when="alt">Active (승격)</small></div>
+      <div class="node new" id="dpB-sch" style="left:1112px;top:214px;width:284px;height:70px"><b>빌드 스케줄러</b><small>×2</small></div>
+      <div class="runner" id="dpB-run" style="left:812px;top:306px;width:584px;height:92px"><b>k8s 러너 클러스터<span>노드 16대</span></b><div class="cells" data-n="16"></div></div>
+      <div class="node db change alt-promote" id="dpB-pg" style="left:812px;top:420px;width:284px;height:70px"><b>PostgreSQL</b><small data-when="base">Replica</small><small data-when="alt">Primary (승격)</small></div>
+      <div class="node db new" id="dpB-obj" style="left:1112px;top:420px;width:284px;height:70px"><b>오브젝트 스토리지</b><small>3노드</small></div>
+
+      <div class="gap-note" style="left:640px;width:144px;top:330px">러너는<br>센터별 독립</div>
+    </div>
+    <script type="application/json" data-kind="edges" data-for="dep">[
+      { "a": "dp-gslb", "as": "b", "b": "dpA-ing", "bs": "t@0.757", "r": "vhv", "my": 86, "cls": "alt-cut", "label": "평시", "lseg": 1 },
+      { "a": "dp-gslb", "as": "b", "b": "dpB-ing", "bs": "t@0.66", "r": "vhv", "my": 86, "cls": "soft alt-live", "label": "장애 시 전환", "lseg": 1 },
+      { "a": "dpA-ctl", "as": "r", "b": "dpB-ctl", "bs": "l", "cls": "soft both", "label": "상태 동기화<br>자동 전환 10분", "dy": -30 },
+      { "a": "dpA-pg", "as": "r", "b": "dpB-pg", "bs": "l", "cls": "soft both", "label": "DB 스트리밍 복제<br>RPO 15분", "dy": -30 },
+      { "a": "dpA-ing", "as": "b", "ax": "b", "b": "dpA-ctl", "bs": "t", "cls": "alt-dim" },
+      { "a": "dpA-sch", "as": "b", "b": "dpA-run", "bs": "t", "bx": "a", "cls": "alt-dim" },
+      { "a": "dpA-run", "as": "b", "ax": "b", "b": "dpA-obj", "bs": "t", "cls": "alt-dim" },
+      { "a": "dpB-ing", "as": "b", "ax": "b", "b": "dpB-ctl", "bs": "t" },
+      { "a": "dpB-sch", "as": "b", "b": "dpB-run", "bs": "t", "bx": "a" },
+      { "a": "dpB-run", "as": "b", "ax": "b", "b": "dpB-obj", "bs": "t" }
+    ]</script>
+  </div>
+  <div class="source">※ RTO 서비스 재개까지 걸리는 시간, RPO 허용 데이터 손실 시간 / 상단 버튼으로 장애 상황 전환 / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 13. 간지 Ⅲ ═══════════ -->
+<section class="slide dark divider" data-section="전환 및 운영 계획" data-num="Ⅲ" data-title="Ⅲ. 전환 및 운영 계획"
+  data-desc="단계별 트래픽 전환 일정과 롤백 기준,&lt;br&gt;운영 체계와 투자 요청 사항을 정리"></section>
+
+<!-- ═══════════ 14. 단계 매트릭스 (쉐브론 헤더, 열 강조) ═══════════ -->
+<section class="slide content" data-title="단계별 전환 계획">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">단계별 전환 계획</h2>
+    <p class="gmsg">빌드 트래픽을 30%, 70%, 100% 세 단계로 옮기고 단계마다 <b>롤백 기준</b>을 두어 중단 없이 전환</p>
+  </header>
+  <div class="s-body">
+    <div class="mx" data-col-hover data-a>
+      <div></div>
+      <div class="mx-h first" data-col="0"><b>Phase 0 &nbsp;준비</b><small>'26.11 ~ 12</small></div>
+      <div class="mx-h" data-col="1"><b>Phase 1 &nbsp;시범</b><small>'27.1Q</small></div>
+      <div class="mx-h" data-col="2"><b>Phase 2 &nbsp;확대</b><small>'27.2Q</small></div>
+      <div class="mx-h end" data-col="3"><b>Phase 3 &nbsp;전면</b><small>'27.3Q</small></div>
+
+      <div class="mx-l">빌드 트래픽</div>
+      <div class="mx-c" data-col="0"><div class="traffic"><i style="--p:0%;--i:0"></i></div><div class="traffic-l">VM 100%</div></div>
+      <div class="mx-c" data-col="1"><div class="traffic"><i style="--p:30%;--i:1"></i></div><div class="traffic-l">k8s 30% · VM 70%</div></div>
+      <div class="mx-c" data-col="2"><div class="traffic"><i style="--p:70%;--i:2"></i></div><div class="traffic-l">k8s 70% · VM 30%</div></div>
+      <div class="mx-c" data-col="3"><div class="traffic"><i style="--p:100%;--i:3"></i></div><div class="traffic-l">k8s 100% (HW 연동 빌드 제외)</div></div>
+
+      <div class="mx-l">주요 작업</div>
+      <div class="mx-c" data-col="0"><ul class="ul"><li>k8s 클러스터 구축 (노드 40대)</li><li>빌드 이미지 12종 표준화</li><li>트레이싱 에이전트 배포</li></ul></div>
+      <div class="mx-c" data-col="1"><ul class="ul"><li>신규 · 저위험 저장소 420개 이관</li><li>스케줄러 우선순위 규칙 적용</li></ul></div>
+      <div class="mx-c" data-col="2"><ul class="ul"><li>컨트롤러 이중화 전환</li><li>DB HA 전환 (점검 4시간)</li></ul></div>
+      <div class="mx-c" data-col="3"><ul class="ul"><li>잔여 저장소 이관</li><li>VM 러너 140대 반납</li><li>HW 연동용 VM 40대는 유지</li></ul></div>
+
+      <div class="mx-l">완료 기준</div>
+      <div class="mx-c" data-col="0">상위 50개 파이프라인을 표준 이미지로 재현</div>
+      <div class="mx-c" data-col="1">성공률이 VM과 동등 이상, 피크 대기 5분 이하</div>
+      <div class="mx-c" data-col="2">장애 전환 훈련 2회 통과 (RTO 10분)</div>
+      <div class="mx-c" data-col="3">가용률 99.9%를 4주 유지</div>
+
+      <div class="mx-l r">롤백 기준</div>
+      <div class="mx-c last" data-col="0">해당 없음 (VM 병행 운영)</div>
+      <div class="mx-c last" data-col="1">실패율이 VM보다 3%p 높은 상태가 2일 지속</div>
+      <div class="mx-c last" data-col="2">전환 훈련 RTO 30분 초과</div>
+      <div class="mx-c last" data-col="3">주간 가용률 99.5% 미만</div>
+    </div>
+  </div>
+  <div class="source">※ 다음 단계 진입은 직전 단계 완료 기준 충족 후 PMO 승인 / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 15. 에스컬레이션 플로차트 + RACI ═══════════ -->
+<section class="slide content" data-title="운영 체계">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">운영 체계</h2>
+    <p class="gmsg">1차 대응은 24시간 운영 당번이 맡고, <b>30분</b> 안에 복구하지 못하면 컴포넌트 담당자에게 넘김</p>
+  </header>
+  <div class="s-body">
+    <div class="ops">
+      <div class="esc edges-host" id="esc" data-a>
+        <div class="h3">장애 대응 절차</div>
+        <div class="node" id="es-det" style="left:40px;top:44px;width:340px;height:54px"><b>장애 감지</b><small>자동 경보 · 사용자 신고</small></div>
+        <div class="node core" id="es-l1" style="left:40px;top:120px;width:340px;height:62px"><b>L1 운영 당번 (24시간)</b><small>초동 조치 · 15분 안에 공지</small></div>
+        <div class="diamond" id="es-d1" style="left:80px;top:204px;width:260px;height:76px"><svg viewBox="0 0 260 76" preserveAspectRatio="none"><polygon points="130,1 259,38 130,75 1,38"/></svg><span>30분 안에 복구?</span></div>
+        <div class="node core" id="es-l2" style="left:40px;top:304px;width:340px;height:62px"><b>L2 컴포넌트 담당</b><small>원인 분석 · 복구</small></div>
+        <div class="diamond" id="es-d2" style="left:80px;top:388px;width:260px;height:76px"><svg viewBox="0 0 260 76" preserveAspectRatio="none"><polygon points="130,1 259,38 130,75 1,38"/></svg><span>2시간 안에 복구?</span></div>
+        <div class="node change" id="es-l3" style="left:40px;top:488px;width:340px;height:56px"><b>L3 개발팀 · 벤더</b><small>비상 대책 회의</small></div>
+        <div class="node muted" id="es-end" style="left:440px;top:304px;width:160px;height:62px"><b>종료</b><small>48시간 안에 사후 보고</small></div>
+      </div>
+      <script type="application/json" data-kind="edges" data-for="esc">[
+        { "a": "es-det", "as": "b", "b": "es-l1", "bs": "t" },
+        { "a": "es-l1", "as": "b", "b": "es-d1", "bs": "t" },
+        { "a": "es-d1", "as": "b", "b": "es-l2", "bs": "t", "label": "아니오", "dx": -38, "lseg": 0 },
+        { "a": "es-l2", "as": "b", "b": "es-d2", "bs": "t" },
+        { "a": "es-d2", "as": "b", "b": "es-l3", "bs": "t", "label": "아니오", "dx": -38, "lseg": 0 },
+        { "a": "es-d1", "as": "r", "b": "es-end", "bs": "t", "r": "hv", "label": "예", "lcls": "yes", "lseg": 0, "dy": -14 },
+        { "a": "es-d2", "as": "r", "b": "es-end", "bs": "b", "r": "hv", "label": "예", "lcls": "yes", "lseg": 0, "dy": -14 }
+      ]</script>
+      <div data-a>
+        <div class="h3">역할 분담 (RACI)</div>
+        <div class="raci" id="raci"></div>
+        <script type="application/json" data-kind="raci" data-for="raci">{
+          "roles": ["운영 당번", "컴포넌트<br>담당", "플랫폼 PL", "개발팀", "보안팀"],
+          "rows": [
+            ["장애 초동 대응", ["R", "C", "A", "", ""]], ["장애 공지", ["R", "", "A", "I", "I"]], ["원인 분석 · 복구", ["C", "R", "A", "C", ""]],
+            ["사후 보고서", ["C", "R", "A", "I", "I"]], ["정기 점검 (월)", ["", "R", "A", "", ""]], ["용량 계획 (분기)", ["I", "R", "A", "C", ""]], ["보안 패치 적용", ["I", "R", "C", "", "A"]]
+          ]
+        }</script>
+        <div class="raci-lg"><span><i class="rc R">R</i>수행</span><span><i class="rc A">A</i>최종 책임</span><span><i class="rc C">C</i>사전 협의</span><span><i class="rc I">I</i>결과 통보</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="source">※ 표의 행이나 열을 가리키면 해당 역할이 강조됨 / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 16. 기대효과 표(줄어드는 막대) + 요청 카드 ═══════════ -->
+<section class="slide content" data-title="기대효과 및 요청 사항">
+  <header class="s-head">
+    <div class="crumb"></div>
+    <h2 class="s-title">기대효과 및 요청 사항</h2>
+    <p class="gmsg">피크 대기 72% 단축과 러너 운영비 연 15억 원 절감을 위해 노드 40대(<b>32억 원</b>)와 당번 2명 증원 요청</p>
+  </header>
+  <div class="s-body">
+    <div class="ben">
+      <div data-a>
+        <div class="h3">기대효과</div>
+        <div class="bt">
+          <div class="bh">지표</div><div class="bh c">AS-IS</div><div class="bh c" style="color:var(--elec)">TO-BE</div>
+          <div class="bh legend" style="padding-left:22px;font-weight:400;font-size:15px"><span><i style="background:var(--line);border-color:var(--line)"></i>AS-IS</span><span><i class="new"></i>TO-BE</span></div><div class="bh rgt">변화</div>
+
+          <div class="m">피크 대기 시간</div><div class="a c">18분</div><div class="t c">5분</div><div class="bars2"><i class="as"></i><i class="to" style="--w:27.8%;--i:0"></i></div><div class="p rgt">-72%</div>
+          <div class="m">리뷰 결과 회신</div><div class="a c">31분</div><div class="t c">13분</div><div class="bars2"><i class="as"></i><i class="to" style="--w:41.9%;--i:1"></i></div><div class="p rgt">-58%</div>
+          <div class="m">장애 복구 시간 (RTO)</div><div class="a c">4시간</div><div class="t c">10분</div><div class="bars2"><i class="as"></i><i class="to" style="--w:4.2%;--i:2"></i></div><div class="p rgt">-96%</div>
+          <div class="m">러너 운영비 (연)</div><div class="a c">46억 원</div><div class="t c">31억 원</div><div class="bars2"><i class="as"></i><i class="to" style="--w:67.4%;--i:3"></i></div><div class="p rgt">-33%</div>
+          <div class="m">가용률</div><div class="a c">99.62%</div><div class="t c">99.9%</div><div class="note">연간 중단 33시간에서 9시간</div><div class="p rgt">+0.28%p</div>
+        </div>
+      </div>
+      <div data-a>
+        <div class="h3">요청 사항</div>
+        <div class="asks">
+          <div class="ask"><span class="no">01</span><span class="ok">승인</span><span class="fig">32억 원</span><h4>k8s 러너 노드 40대 도입</h4><ul class="ul sub"><li>주 센터 24대, 백업 센터 16대</li><li>'27.1Q 입고, Phase 0에 구축</li></ul></div>
+          <div class="ask"><span class="no">02</span><span class="ok">승인</span><span class="fig">2명</span><h4>운영 당번 2명 증원</h4><ul class="ul sub"><li>24시간 3교대 전환</li><li>기존 4명에 신규 2명 합류</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="source">※ 투자 회수 약 2.1년 (32억 원 ÷ 연 15억 원) / 수치는 예시</div>
+</section>
+
+<!-- ═══════════ 17. Appendix: 명세 표 (구분 필터) ═══════════ -->
+<section class="slide content" data-section="Appendix" data-num="" data-title="컴포넌트 명세">
+  <header class="s-head">
+    <div class="crumb">Appendix</div>
+    <h2 class="s-title">컴포넌트 명세</h2>
+    <p class="gmsg">TO-BE 주요 컴포넌트 12개 중 <b>신규 5개</b>, 변경 3개, 유지 4개</p>
+  </header>
+  <div class="s-body">
+    <div class="toolbar" data-a>
+      <span class="cap">구분을 고르면 해당 행만 진하게 표시</span>
+      <div class="seg" role="group" aria-label="구분 강조" data-filter-target="#spec"><button type="button" data-f="">전체</button><button type="button" data-f="new">신규</button><button type="button" data-f="change">변경</button><button type="button" data-f="keep">유지</button></div>
+    </div>
+    <table class="spec" id="spec" data-a>
+      <thead><tr><th style="width:104px;text-align:center">계층</th><th style="width:220px">컴포넌트</th><th>역할</th><th style="width:270px">기술 스택</th><th style="width:236px">구성</th><th style="width:98px;text-align:center">구분</th><th style="width:92px;text-align:center">담당</th></tr></thead>
+      <tbody>
+        <tr data-kind="keep"><td class="grp" rowspan="2">접근</td><td class="nm">웹 포털</td><td>빌드 현황 · 로그 조회</td><td class="tech">React · Nginx</td><td>2대</td><td class="k"><span class="kind keep">유지</span></td><td class="c">플랫폼</td></tr>
+        <tr data-kind="new" class="gl"><td class="nm">AI 빌드 진단 봇</td><td>실패 로그 요약 · 원인 분류</td><td class="tech">사내 LLM API</td><td>컨테이너 2개</td><td class="k"><span class="kind new">신규</span></td><td class="c">플랫폼</td></tr>
+        <tr data-kind="keep"><td class="grp" rowspan="4">서비스</td><td class="nm">Gerrit</td><td>코드 리뷰 · 형상관리</td><td class="tech">Gerrit 3.10</td><td>2대</td><td class="k"><span class="kind keep">유지</span></td><td class="c">형상</td></tr>
+        <tr data-kind="change"><td class="nm">Jenkins 컨트롤러</td><td>파이프라인 실행 관리</td><td class="tech">Jenkins LTS</td><td>2대 (Active-Standby)</td><td class="k"><span class="kind change">변경</span></td><td class="c">CI</td></tr>
+        <tr data-kind="new"><td class="nm">빌드 스케줄러</td><td>우선순위 · 팀 쿼터 판정</td><td class="tech">자체 개발 (Go)</td><td>2대</td><td class="k"><span class="kind new">신규</span></td><td class="c">CI</td></tr>
+        <tr data-kind="keep" class="gl"><td class="nm">Artifactory</td><td>산출물 저장 · 배포</td><td class="tech">Artifactory 7</td><td>2대</td><td class="k"><span class="kind keep">유지</span></td><td class="c">형상</td></tr>
+        <tr data-kind="new"><td class="grp" rowspan="2">실행</td><td class="nm">k8s 공유 러너 풀</td><td>빌드 · 테스트 실행</td><td class="tech">Kubernetes 1.31</td><td>노드 40대, Pod 120~400</td><td class="k"><span class="kind new">신규</span></td><td class="c">인프라</td></tr>
+        <tr data-kind="change" class="gl"><td class="nm">전용 VM 러너</td><td>HW 연동 빌드</td><td class="tech">VM</td><td>40대</td><td class="k"><span class="kind change">변경</span></td><td class="c">인프라</td></tr>
+        <tr data-kind="change"><td class="grp" rowspan="3">데이터</td><td class="nm">PostgreSQL HA</td><td>빌드 메타데이터</td><td class="tech">PostgreSQL 16 · Patroni</td><td>3노드</td><td class="k"><span class="kind change">변경</span></td><td class="c">인프라</td></tr>
+        <tr data-kind="new"><td class="nm">오브젝트 스토리지</td><td>소스 캐시 · 로그 · 산출물</td><td class="tech">S3 호환</td><td>센터별 3노드</td><td class="k"><span class="kind new">신규</span></td><td class="c">인프라</td></tr>
+        <tr data-kind="keep" class="gl"><td class="nm">Elasticsearch</td><td>빌드 로그 검색</td><td class="tech">Elasticsearch 8</td><td>3노드</td><td class="k"><span class="kind keep">유지</span></td><td class="c">인프라</td></tr>
+        <tr data-kind="new" class="gl"><td class="grp" rowspan="1">관측</td><td class="nm">빌드 트레이싱</td><td>단계별 소요 시간 · 지표</td><td class="tech">OpenTelemetry · Grafana</td><td>수집기 4대</td><td class="k"><span class="kind new">신규</span></td><td class="c">플랫폼</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="source">※ 버전은 2026년 10월 검토 기준이며 도입 시점에 확정 / 수치는 예시</div>
+</section>
+
+</div></div>
+
+<nav class="navbar" aria-label="슬라이드 이동">
+  <div class="bar-title" id="barTitle"></div>
+  <div class="prog" id="prog"></div>
+  <span class="kbd-hint">← → 이동 · G 전체 보기 · F 전체 화면</span>
+  <div class="ctrl">
+    <button type="button" class="ibtn" id="btnPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 16 16"><path d="M10 3 L5 8 L10 13"/></svg></button>
+    <span class="count" id="count">01</span>
+    <button type="button" class="ibtn" id="btnNext" aria-label="다음 슬라이드"><svg viewBox="0 0 16 16"><path d="M6 3 L11 8 L6 13"/></svg></button>
+    <button type="button" class="ibtn" id="btnOv" aria-label="전체 보기"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg></button>
+    <button type="button" class="ibtn" id="btnFs" aria-label="전체 화면"><svg viewBox="0 0 16 16"><path d="M2 6 V2 H6 M10 2 H14 V6 M14 10 V14 H10 M6 14 H2 V10"/></svg></button>
+  </div>
+</nav>
+</div>
+
+<div class="overview" id="ov" hidden>
+  <div class="ov-head"><b>전체 보기</b><button type="button" class="ibtn" id="ovClose">닫기 (Esc)</button></div>
+  <div class="ov-grid" id="ovGrid"></div>
+</div>
+
+<script>
+/* Ink Ledger 덱 엔진. 슬라이드 내용은 HTML과 JSON 설정 블록으로만 쓰고, 이 스크립트는 고치지 않는다.
+   - 섹션: data-section(+data-num)이 붙은 슬라이드부터 다음 섹션 전까지. 목차·간지·진행 막대·브레드크럼을 여기서 만든다
+   - JSON 블록: <script type="application/json" data-kind="edges|flow|timeline|chart|raci" data-for="대상 id">
+   - data 속성: data-hover-links, data-focus(+data-k), .seg[data-view-target], .seg[data-filter-target], data-col-hover,
+     data-cells, .cells[data-n], data-count, data-flow-play, data-flow-elapsed */
+(() => {
+'use strict';
+const NS = 'http://www.w3.org/2000/svg';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const sv = (tag, attrs = {}) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+const pad = (n) => String(n).padStart(2, '0');
+const warn = (...a) => console.warn('[deck]', ...a);
+
+const CFG = (() => { try { return JSON.parse($('#deck-config').textContent); } catch (e) { warn('deck-config 없음', e); return {}; } })();
+const stage = $('#stage');
+const slides = $$('.slide', stage);
+const N = slides.length;
+function configs(kind) {
+  const m = {};
+  $$(`script[type="application/json"][data-kind="${kind}"]`).forEach((s) => {
+    try { m[s.dataset.for] = JSON.parse(s.textContent); } catch (e) { warn(`JSON 오류: ${kind} → ${s.dataset.for}`, e.message); }
+  });
+  return m;
+}
+
+// ───────── 섹션 ─────────
+const SECS = [];
+slides.forEach((s, i) => {
+  if (s.dataset.section != null) SECS.push({ title: s.dataset.section, num: s.dataset.num || '', start: i, items: [] });
+  const sec = SECS[SECS.length - 1];
+  if (sec) { s._sec = sec; if (!s.classList.contains('divider') && s.dataset.toc !== 'false') sec.items.push([s.dataset.title || '', i + 1]); }
+});
+function buildSections() {
+  // 목차
+  $$('.slide.toc .toc-list').forEach((host) => {
+    SECS.forEach((t) => {
+      const sec = el('div', 'tl-sec');
+      sec.append(el('div', 'tl-num', t.num), el('div', 'tl-title', t.title));
+      const items = el('div', 'tl-items');
+      t.items.forEach(([name, pg]) => {
+        const b = el('button', 'tl-item', `<span>${name}</span><span>${pad(pg)}</span>`);
+        b.type = 'button'; b.addEventListener('click', () => go(pg - 1));
+        items.append(b);
+      });
+      sec.append(items); host.append(sec);
+    });
+  });
+  // 간지
+  $$('.slide.divider').forEach((s) => {
+    const cur = s._sec, idx = SECS.indexOf(cur);
+    s.innerHTML = `<div class="dv-part" data-a>PART &nbsp;${cur.num}</div><div class="dv-num" data-a>${pad(idx + 1)}</div>
+      <h2 class="dv-title" data-a>${cur.title}</h2><p class="dv-desc" data-a>${s.dataset.desc || ''}</p>`;
+    const list = el('div', 'dv-list'); list.setAttribute('data-a', '');
+    SECS.forEach((x) => {
+      const on = x === cur, sec = el('div', 'dv-sec' + (on ? ' cur' : ''));
+      sec.append(el('span', 'n', x.num));
+      const tb = el('button', 't', x.title); tb.type = 'button'; tb.addEventListener('click', () => go(x.start));
+      sec.append(tb);
+      if (on) {
+        const items = el('div', 'dv-items');
+        x.items.forEach(([name, pg]) => { const b = el('button', 'dv-item', `<span>${name}</span><span>${pad(pg)}</span>`); b.type = 'button'; b.addEventListener('click', () => go(pg - 1)); items.append(b); });
+        sec.append(items);
+      }
+      list.append(sec);
+    });
+    s.append(list);
+  });
+  // 브레드크럼(비어 있을 때)과 꼬리말
+  slides.forEach((s, i) => {
+    const c = $('.crumb', s);
+    if (c && !c.textContent.trim() && s._sec) c.textContent = (s._sec.num ? s._sec.num + '. ' : '') + s._sec.title;
+    if (s.classList.contains('content')) s.append(el('div', 'foot', `<span>${CFG.footer || ''}</span><span class="pg">${i + 1}</span>`));
+  });
+  $('#barTitle').innerHTML = CFG.title || '';
+}
+
+// ───────── 반복 칸 ─────────
+function buildCells() {
+  $$('[data-cells]').forEach((box) => {
+    const n = +box.dataset.cells, busy = (box.dataset.busy || '').split(',').filter(Boolean).map(Number), lab = box.dataset.label || '';
+    const first = box.firstChild;
+    for (let i = 0; i < n; i++) box.insertBefore(el('i', busy.includes(i) ? 'busy' : '', lab ? `${lab}${i + 1}` : ''), first);
+  });
+  $$('.cells[data-n]').forEach((c) => { for (let i = 0; i < +c.dataset.n; i++) c.append(document.createElement('i')); });
+}
+
+// ───────── RACI ─────────
+function buildRaci() {
+  const all = configs('raci');
+  Object.entries(all).forEach(([id, c]) => {
+    const host = document.getElementById(id); if (!host) return warn('RACI 대상 없음', id);
+    host.style.gridTemplateColumns = `${c.first || 210}px repeat(${c.roles.length},1fr)`;
+    const cell = (cls, html, r, k) => { const d = el('div', cls, html); d.dataset.r = r; d.dataset.c = k; host.append(d); };
+    cell('rh ra', c.head || '활동', -1, -1);
+    c.roles.forEach((r, j) => cell('rh', r, -1, j));
+    c.rows.forEach(([a, cs], i) => { cell('ra', a, i, -1); cs.forEach((x, j) => cell('', x ? `<span class="rc ${x}">${x}</span>` : '', i, j)); });
+    host.addEventListener('mouseover', (e) => {
+      const d = e.target.closest('[data-r]'); if (!d || d.parentElement !== host) return;
+      const r = d.dataset.r, k = d.dataset.c;
+      $$(':scope > div', host).forEach((x) => x.classList.toggle('xhl', (r !== '-1' && x.dataset.r === r) || (k !== '-1' && x.dataset.c === k)));
+    });
+    host.addEventListener('mouseleave', () => $$(':scope > div', host).forEach((x) => x.classList.remove('xhl')));
+  });
+}
+
+// ───────── 타임라인 ─────────
+const mins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+function buildTimelines() {
+  Object.entries(configs('timeline')).forEach(([id, c]) => {
+    const host = document.getElementById(id); if (!host) return warn('타임라인 대상 없음', id);
+    const W = host.clientWidth, TH = host.clientHeight, AY = Math.round(TH * .48), pad0 = 30;
+    const T0 = mins(c.start), T1 = mins(c.end), X = (t) => pad0 + (mins(t) - T0) / (T1 - T0) * (W - 2 * pad0);
+    const axis = el('div', 'tl-axis'); axis.style.top = (AY - 1) + 'px';
+    if (c.band) {
+      const band = el('div', 'tl-band'); band.style.left = X(c.band.from) + 'px'; band.style.width = (X(c.band.to) - X(c.band.from)) + 'px'; band.style.top = (AY - 13) + 'px';
+      host.append(band);
+      if (c.band.label) { const bl = el('div', 'tl-band-l', c.band.label); bl.style.left = X(c.band.at || c.band.from) + 'px'; bl.style.top = (AY + 26) + 'px'; host.append(bl); }
+    }
+    host.append(axis);
+    c.events.forEach((ev, i) => {
+      const x = X(ev.t), up = i % 2 === 0, right = x > W - 210;
+      const e = el('div', 'ev ' + (ev.kind || ''));
+      e.style.cssText = 'position:absolute;inset:0;width:auto;pointer-events:none';
+      const dot = el('i', 'dot'); dot.style.left = (x - 8) + 'px'; dot.style.top = (AY - 8) + 'px'; dot.style.pointerEvents = 'auto';
+      const stem = el('i', 'stem'); stem.style.left = x + 'px'; stem.style.top = (up ? AY - 26 : AY + 10) + 'px'; stem.style.height = '16px';
+      const lbl = el('div', 'lbl', `<span class="tm">${ev.t}</span><span class="et">${ev.title}</span><span class="ed">${ev.desc || ''}</span>`);
+      lbl.style.left = (right ? x - 188 : x - 12) + 'px'; lbl.style.pointerEvents = 'auto';
+      if (right) lbl.style.textAlign = 'right';
+      if (up) lbl.style.bottom = (TH - AY + 30) + 'px'; else lbl.style.top = (AY + 30) + 'px';
+      e.append(stem, lbl, dot); host.append(e);
+    });
+  });
+}
+
+// ───────── 차트 ─────────
+const tipOf = (host) => $('.tip', host) || host.appendChild(el('div', 'tip'));
+const fmtNum = (v, d) => v.toLocaleString('ko-KR', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+function barChart(host, c) {
+  const W = host.clientWidth, H = c.h || 340, pl = 6, pr = 6, pt = 34, pb = 38, iw = W - pl - pr, ih = H - pt - pb, n = c.values.length, band = iw / n, bw = band * .6;
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, class: 'chart', role: 'img', 'aria-label': c.aria || '' });
+  svg.append(sv('line', { x1: pl, x2: W - pr, y1: pt + ih + .5, y2: pt + ih + .5, class: 'axis' }));
+  const tip = tipOf(host), hi = c.hi || [];
+  c.values.forEach((v, i) => {
+    const x = pl + band * i + (band - bw) / 2, h = ih * v / c.max, y = pt + ih - h;
+    const g = sv('g', { class: 'bar-g' });
+    const r = sv('rect', { x, y, width: bw, height: h, rx: 3, class: 'bar' + (hi.includes(i) ? ' hi' : '') }); r.style.setProperty('--i', i);
+    const t = sv('text', { x: x + bw / 2, y: y - 9, class: 'val', 'text-anchor': 'middle' }); t.textContent = fmtNum(v, c.dec); t.style.setProperty('--i', i);
+    const lab = sv('text', { x: x + bw / 2, y: H - 10, class: 'lab', 'text-anchor': 'middle' }); lab.textContent = c.labels[i];
+    const hit = sv('rect', { x: pl + band * i, y: pt - 20, width: band, height: ih + 20, class: 'hit' });
+    hit.addEventListener('mouseenter', () => {
+      let s = `<span>${(c.full || c.labels)[i]}</span><b>${fmtNum(v, c.dec)}${c.unit || ''}</b>`;
+      if (c.delta && i) { const d = v - c.values[i - 1]; s += ` · ${c.delta} ${d >= 0 ? '+' : ''}${fmtNum(d, c.dec)}`; }
+      tip.innerHTML = s; tip.style.left = (x + bw / 2) + 'px'; tip.style.top = (y - 26) + 'px'; tip.classList.add('show');
+    });
+    hit.addEventListener('mouseleave', () => tip.classList.remove('show'));
+    g.append(r, t, lab, hit); svg.append(g);
+  });
+  host.append(svg);
+}
+function lineChart(host, c) {
+  const W = host.clientWidth, H = c.h || 340, pl = 22, pr = 22, pt = 36, pb = 38, iw = W - pl - pr, ih = H - pt - pb, n = c.values.length;
+  const min = c.min || 0, xs = (i) => pl + iw * (i + .5) / n, ys = (v) => pt + ih - ih * (v - min) / (c.max - min);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, class: 'chart', role: 'img', 'aria-label': c.aria || '' });
+  svg.append(sv('line', { x1: 0, x2: W, y1: pt + ih + .5, y2: pt + ih + .5, class: 'axis' }));
+  const pts = c.values.map((v, i) => [xs(i), ys(v)]);
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  svg.append(sv('path', { d: d + ` L${pts[n - 1][0]},${pt + ih} L${pts[0][0]},${pt + ih} Z`, class: 'area' }));
+  if (c.target != null) {
+    const ty = ys(c.target);
+    svg.append(sv('line', { x1: 0, x2: W, y1: ty, y2: ty, class: 'target' }));
+    // 라벨 위치: targetPos("left"|"right"). 지정이 없으면 마지막 두 점이 기준선 근처일 때 왼쪽으로 옮김
+    const near = c.values.slice(-2).some((v) => Math.abs(ys(v) - ty) < 34);
+    const left = c.targetPos ? c.targetPos === 'left' : near;
+    const tl = sv('text', { x: left ? 0 : W, y: ty - 9, class: 'target-l', 'text-anchor': left ? 'start' : 'end' }); tl.textContent = c.targetLabel || ''; svg.append(tl);
+  }
+  svg.append(sv('path', { d, class: 'line', pathLength: 1 }));
+  const cross = sv('line', { x1: 0, x2: 0, y1: pt - 10, y2: pt + ih, class: 'cross' }); svg.append(cross);
+  pts.forEach((p, i) => {
+    const last = i === n - 1;
+    const c1 = sv('circle', { cx: p[0], cy: p[1], r: last ? 6 : 4.5, class: 'pt' + (last ? ' last' : '') }); c1.style.setProperty('--i', i);
+    const t = sv('text', { x: p[0], y: p[1] - 14, class: 'val pl', 'text-anchor': 'middle' }); t.textContent = fmtNum(c.values[i], c.dec); t.style.setProperty('--i', i);
+    if (last) { t.style.fontWeight = '700'; t.style.fill = 'var(--ink)'; }
+    const lab = sv('text', { x: p[0], y: H - 10, class: 'lab', 'text-anchor': 'middle' }); lab.textContent = c.labels[i];
+    svg.append(c1, t, lab);
+  });
+  const hit = sv('rect', { x: 0, y: 0, width: W, height: H, class: 'hit' }); svg.append(hit);
+  const tip = tipOf(host);
+  hit.addEventListener('mousemove', (e) => {
+    const r = svg.getBoundingClientRect(), sx = (e.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(n - 1, Math.round((sx - pl) / iw * n - .5))), v = c.values[i];
+    cross.setAttribute('x1', pts[i][0]); cross.setAttribute('x2', pts[i][0]); cross.style.opacity = 1;
+    let s = `<span>${(c.full || c.labels)[i]}</span><b>${fmtNum(v, c.dec)}${c.unit || ''}</b>`;
+    if (c.target != null && v !== c.target && c.targetTip !== '') s += ` · ${c.targetTip || '목표 대비'} ${v > c.target ? '+' : ''}${fmtNum(v - c.target, c.dec)}${c.unit || ''}`;
+    tip.innerHTML = s; tip.style.left = pts[i][0] + 'px'; tip.style.top = (pts[i][1] - 22) + 'px'; tip.classList.add('show');
+  });
+  hit.addEventListener('mouseleave', () => { tip.classList.remove('show'); cross.style.opacity = 0; });
+  host.append(svg);
+}
+function buildCharts() {
+  Object.entries(configs('chart')).forEach(([id, c]) => {
+    const host = document.getElementById(id); if (!host) return warn('차트 대상 없음', id);
+    (c.type === 'line' ? lineChart : barChart)(host, c);
+  });
+}
+
+// ───────── 스윔레인 흐름 ─────────
+const FLOWS = configs('flow');
+const EDGES = configs('edges');
+function buildFlows() {
+  Object.entries(FLOWS).forEach(([id, c]) => {
+    const host = document.getElementById(id); if (!host) return warn('흐름 대상 없음', id);
+    const LH = c.laneH || 80, LW = c.labelW || 176, AX = LW + 16;
+    const cols = Math.max(...c.steps.map((s) => s.col), c.end ? c.end.col : 0) + 1;
+    const CWd = (host.clientWidth - AX) / cols, BW = Math.min(c.nodeW || 150, CWd - 24);
+    host.style.height = (c.lanes.length * LH) + 'px';
+    c.lanes.forEach(([t, s], i) => {
+      const ln = el('div', 'lane' + (i === c.lanes.length - 1 ? ' last' : ''), `<div class="lane-l"><b>${t}</b>${s ? `<small>${s}</small>` : ''}</div><div class="lane-a"></div>`);
+      ln.style.top = i * LH + 'px'; ln.style.height = LH + 'px'; ln.style.gridTemplateColumns = `${LW}px 1fr`;
+      host.append(ln);
+    });
+    const pos = (l, k) => ({ x: AX + (CWd - BW) / 2 + k * CWd, y: l * LH + 9 });
+    const add = (st, i, isEnd) => {
+      const p = pos(st.lane, st.col);
+      const n = el('div', `node step ${st.kind || (isEnd ? 'muted' : '')}`, `${isEnd ? '' : `<i class="sb">${i + 1}</i>`}<b>${st.t}</b><small>${st.s || ''}</small>`);
+      n.id = `${id}-${isEnd ? 'end' : i + 1}`; n.style.left = p.x + 'px'; n.style.top = p.y + 'px'; n.style.width = BW + 'px';
+      host.append(n);
+      if (st.time) { const tt = el('div', 'step-t', st.time); tt.style.left = p.x + 'px'; tt.style.top = (p.y + 54) + 'px'; tt.style.width = BW + 'px'; host.append(tt); }
+      return n;
+    };
+    c.steps.forEach((st, i) => add(st, i, false));
+    if (c.end) add(c.end, 0, true);
+    if (!EDGES[id]) {
+      const list = [];
+      for (let i = 1; i < c.steps.length; i++) {
+        const a = c.steps[i - 1], b = c.steps[i];
+        list.push({ a: `${id}-${i}`, as: 'r', b: `${id}-${i + 1}`, bs: 'l', r: a.lane === b.lane ? 's' : 'hvh' });
+      }
+      if (c.end) {
+        const a = c.steps[c.steps.length - 1], b = c.end, up = b.lane < a.lane;
+        list.push(a.col === b.col ? { a: `${id}-${c.steps.length}`, as: up ? 't' : 'b', b: `${id}-end`, bs: up ? 'b' : 't' } : { a: `${id}-${c.steps.length}`, as: 'r', b: `${id}-end`, bs: 'l', r: 'hvh' });
+      }
+      EDGES[id] = list;
+    }
+  });
+}
+function wireFlowPlay() {
+  const resets = [];
+  $$('[data-flow-play]').forEach((btn) => {
+    const id = btn.dataset.flowPlay, c = FLOWS[id], host = document.getElementById(id), out = $(`[data-flow-elapsed="${id}"]`);
+    if (!c || !host) return warn('흐름 재생 대상 없음', id);
+    const scope = host.closest('.s-body') || host;
+    let token = 0;
+    const fmt = (s) => s < 60 ? `${s}초` : `${Math.floor(s / 60)}분${s % 60 ? ' ' + (s % 60) + '초' : ''}`;
+    const reset = () => { token++; scope.classList.remove('playing'); $$('.step', host).forEach((s) => s.classList.remove('run', 'past')); $$('.fl-dot', host).forEach((d) => d.remove()); if (out) out.textContent = '경과 0초'; };
+    resets.push(reset);
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const travel = (path, my) => new Promise((res) => {
+      const svg = path.ownerSVGElement, L = path.getTotalLength(), dot = sv('circle', { r: 6, class: 'fl-dot', style: 'fill:var(--elec)' }); svg.append(dot);
+      const t0 = performance.now(), dur = 520;
+      const f = (t) => { if (my !== token) { dot.remove(); return res(); } const k = Math.min(1, (t - t0) / dur), p = path.getPointAtLength(L * (1 - Math.pow(1 - k, 3))); dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); if (k < 1) requestAnimationFrame(f); else { dot.remove(); res(); } };
+      requestAnimationFrame(f);
+    });
+    btn.addEventListener('click', async () => {
+      reset(); const my = token; scope.classList.add('playing');
+      const nodes = c.steps.map((_, i) => document.getElementById(`${id}-${i + 1}`)).concat(c.end ? [document.getElementById(`${id}-end`)] : []);
+      const paths = $$('.edge path', host); let acc = 0;
+      for (let i = 0; i < nodes.length; i++) {
+        if (my !== token) return;
+        $$('.step.run', host).forEach((x) => { x.classList.remove('run'); x.classList.add('past'); });
+        nodes[i].classList.add('run');
+        if (out) { if (i < c.steps.length) { acc += c.steps[i].sec || 0; out.textContent = '경과 ' + fmt(acc); } else out.textContent = c.done || '완료'; }
+        await sleep(420);
+        if (i < paths.length) await travel(paths[i], my);
+      }
+      await sleep(900);
+      if (my === token) { scope.classList.remove('playing'); $$('.step', host).forEach((s) => s.classList.remove('run', 'past')); }
+    });
+  });
+  return () => resets.forEach((r) => r());
+}
+
+// ───────── 연결선 ─────────
+function offs(node, root) { let x = 0, y = 0; while (node && node !== root) { x += node.offsetLeft; y += node.offsetTop; node = node.offsetParent; } return [x, y]; }
+function anchor(node, side, root) {
+  const [x, y] = offs(node, root), w = node.offsetWidth, h = node.offsetHeight;
+  const [s, f0] = side.split('@'), f = f0 == null ? .5 : +f0;
+  if (s === 'l') return [x, y + h * f]; if (s === 'r') return [x + w, y + h * f];
+  if (s === 't') return [x + w * f, y]; return [x + w * f, y + h];
+}
+const centerOf = (node, root) => { const [x, y] = offs(node, root); return [x + node.offsetWidth / 2, y + node.offsetHeight / 2]; };
+function route(e, A, B) {
+  switch (e.r || 's') {
+    case 'hvh': { const mx = e.mx ?? (A[0] + B[0]) / 2; return [A, [mx, A[1]], [mx, B[1]], B]; }
+    case 'vhv': { const my = e.my ?? (A[1] + B[1]) / 2; return [A, [A[0], my], [B[0], my], B]; }
+    case 'hv': return [A, [B[0], A[1]], B];
+    case 'vh': return [A, [A[0], B[1]], B];
+    default: return [A, B];
+  }
+}
+function pathD(p, r = 9) {
+  let d = `M${p[0][0]},${p[0][1]}`;
+  for (let i = 1; i < p.length - 1; i++) {
+    const [x0, y0] = p[i - 1], [x1, y1] = p[i], [x2, y2] = p[i + 1];
+    const d1 = Math.hypot(x1 - x0, y1 - y0), d2 = Math.hypot(x2 - x1, y2 - y1);
+    if (d1 < .5 || d2 < .5) continue;
+    const rr = Math.min(r, d1 / 2, d2 / 2);
+    d += ` L${x1 - (x1 - x0) / d1 * rr},${y1 - (y1 - y0) / d1 * rr} Q${x1},${y1} ${x1 + (x2 - x1) / d2 * rr},${y1 + (y2 - y1) / d2 * rr}`;
+  }
+  return d + ` L${p[p.length - 1][0]},${p[p.length - 1][1]}`;
+}
+function drawEdges() {
+  Object.entries(EDGES).forEach(([hostId, list]) => {
+    const host = document.getElementById(hostId); if (!host) return warn('연결선 대상 없음', hostId);
+    $$(':scope > .edges, :scope > .e-label', host).forEach((x) => x.remove());
+    const svg = sv('svg', { class: 'edges' });
+    list.forEach((e) => {
+      const na = document.getElementById(e.a), nb = document.getElementById(e.b);
+      if (!na || !nb) return warn('연결선 노드 없음', e.a, e.b);
+      const A = anchor(na, e.as || 'r', host), B = anchor(nb, e.bs || 'l', host);
+      if (e.ax === 'b') A[0] = centerOf(nb, host)[0];
+      if (e.ay === 'b') A[1] = centerOf(nb, host)[1];
+      if (e.bx === 'a') B[0] = A[0];
+      if (e.by === 'a') B[1] = A[1];
+      const pts = route(e, A, B);
+      const g = sv('g', { class: 'edge ' + (e.cls || '') }); g.dataset.from = e.a; g.dataset.to = e.b;
+      g.append(sv('path', { d: pathD(pts) })); svg.append(g);
+      if (e.label) {
+        let lx, ly;
+        if (e.lseg != null) { const p0 = pts[e.lseg], p1 = pts[e.lseg + 1]; lx = (p0[0] + p1[0]) / 2; ly = (p0[1] + p1[1]) / 2; }
+        else { lx = (A[0] + B[0]) / 2; ly = (A[1] + B[1]) / 2; if (e.dy == null && Math.abs(A[1] - B[1]) < 1) ly -= 16; }
+        const lab = el('span', 'e-label ' + (e.lcls || '') + ' ' + (e.cls || ''), e.label);
+        lab.style.left = (lx + (e.dx || 0)) + 'px'; lab.style.top = (ly + (e.dy || 0)) + 'px';
+        lab.dataset.from = e.a; lab.dataset.to = e.b; host.append(lab);
+      }
+    });
+    host.append(svg);
+  });
+}
+
+// ───────── 상호작용 (data 속성) ─────────
+function wireHoverLinks() {
+  $$('[data-hover-links]').forEach((host) => {
+    $$('[data-hover]', host).forEach((n) => {
+      n.addEventListener('mouseenter', () => {
+        host.classList.add('hovering'); n.classList.add('on');
+        $$('.edge, .e-label', host).forEach((g) => {
+          const hit = g.dataset.from === n.id || g.dataset.to === n.id;
+          g.classList.toggle('on', hit);
+          if (hit) { const o = document.getElementById(g.dataset.from === n.id ? g.dataset.to : g.dataset.from); if (o) o.classList.add('on'); }
+        });
+      });
+      n.addEventListener('mouseleave', () => { host.classList.remove('hovering'); $$('.on', host).forEach((x) => x.classList.remove('on')); });
+    });
+  });
+}
+function wireFocus() {
+  $$('[data-focus]').forEach((wrap) => {
+    const set = (k) => { wrap.classList.toggle('focusing', !!k); $$('[data-k]', wrap).forEach((x) => x.classList.toggle('on', x.dataset.k === k)); };
+    $$('[data-k]', wrap).forEach((x) => { x.addEventListener('mouseenter', () => set(x.dataset.k)); x.addEventListener('mouseleave', () => set(null)); });
+  });
+}
+function wireViews() {
+  $$('.seg[data-view-target]').forEach((seg) => {
+    const target = $(seg.dataset.viewTarget); if (!target) return warn('보기 전환 대상 없음', seg.dataset.viewTarget);
+    const btns = $$('button[data-value]', seg), scope = seg.closest('.slide');
+    const apply = (v) => { target.dataset.view = v; btns.forEach((b) => b.setAttribute('aria-pressed', b.dataset.value === v)); $$('[data-when]', scope).forEach((x) => { x.hidden = x.dataset.when !== v; }); };
+    btns.forEach((b) => b.addEventListener('click', () => apply(b.dataset.value)));
+    apply(target.dataset.view || btns[0].dataset.value);
+  });
+  $$('.seg[data-filter-target]').forEach((seg) => {
+    const target = $(seg.dataset.filterTarget); if (!target) return warn('필터 대상 없음', seg.dataset.filterTarget);
+    const btns = $$('button', seg);
+    const apply = (f) => { btns.forEach((b) => b.setAttribute('aria-pressed', b.dataset.f === f)); target.classList.toggle('filtering', !!f); $$('[data-kind]', target).forEach((r) => r.classList.toggle('match', r.dataset.kind === f)); };
+    btns.forEach((b) => b.addEventListener('click', () => apply(b.dataset.f || '')));
+    apply('');
+  });
+  $$('[data-col-hover]').forEach((mx) => {
+    mx.addEventListener('mouseover', (e) => { const c = e.target.closest('[data-col]'); const k = c ? c.dataset.col : null; $$('[data-col]', mx).forEach((x) => x.classList.toggle('col-on', x.dataset.col === k)); });
+    mx.addEventListener('mouseleave', () => $$('[data-col]', mx).forEach((x) => x.classList.remove('col-on')));
+  });
+}
+function countUp(slide) {
+  $$('[data-count]', slide).forEach((e) => {
+    const target = +e.dataset.count, dec = +(e.dataset.dec || 0), t0 = performance.now(), dur = 900;
+    const f = (t) => { const k = Math.min(1, (t - t0) / dur); e.textContent = fmtNum(target * (1 - Math.pow(1 - k, 3)), dec); if (k < 1) requestAnimationFrame(f); };
+    requestAnimationFrame(f);
+  });
+}
+
+// ───────── 이동 ─────────
+let cur = -1, animOn = false, resetFlows = () => {};
+const prog = $('#prog'), count = $('#count');
+function buildProg() {
+  const starts = [0, ...SECS.map((s) => s.start).filter((s) => s > 0), N];
+  for (let g = 0; g < starts.length - 1; g++) {
+    const a = starts[g], b = starts[g + 1]; if (b <= a) continue;
+    const grp = el('div', 'prog-g'); grp.style.setProperty('--n', b - a);
+    for (let i = a; i < b; i++) { const t = el('i'); t.title = `${pad(i + 1)} ${slides[i].dataset.title || ''}`; t.addEventListener('click', () => go(i)); grp.append(t); }
+    prog.append(grp);
+  }
+}
+function go(i, opts = {}) {
+  i = Math.max(0, Math.min(N - 1, i));
+  if (!opts.silent && cur !== -1 && i !== cur && !animOn && !matchMedia('(prefers-reduced-motion: reduce)').matches) { animOn = true; document.documentElement.classList.add('anim'); }
+  slides.forEach((s, k) => { s.classList.toggle('is-active', k === i); s.classList.toggle('before', k < i); s.setAttribute('aria-hidden', k !== i); });
+  if (i !== cur) resetFlows();
+  cur = i;
+  $$('i', prog).forEach((t, k) => { t.classList.toggle('cur', k === i); t.classList.toggle('done', k < i); });
+  count.textContent = `${pad(i + 1)} / ${N}`;
+  try { history.replaceState(null, '', '#s' + (i + 1)); } catch (e) { /* 샌드박스에서는 무시 */ }
+  if (animOn) countUp(slides[i]);
+}
+
+// ───────── 화면 맞춤 ─────────
+const vp = $('#vp');
+const isList = () => window.innerWidth < 760;
+function fit() {
+  const list = isList();
+  document.documentElement.classList.toggle('list', list);
+  if (list) {
+    const w = Math.max(document.body.clientWidth - 32, 200), s = Math.max(w / 1600, .42);
+    $$('.frame').forEach((f) => { f.style.height = (900 * s) + 'px'; f.firstElementChild.style.transform = `scale(${s})`; });
+    return;
+  }
+  $$('.frame').forEach((f) => { f.style.height = ''; f.firstElementChild.style.transform = ''; });
+  const r = vp.getBoundingClientRect(), s = Math.min(r.width / 1600, r.height / 900);
+  stage.style.transform = `translate(${(r.width - 1600 * s) / 2}px,${(r.height - 900 * s) / 2}px) scale(${s})`;
+}
+
+// ───────── 전체 보기 ─────────
+const ov = $('#ov'), ovGrid = $('#ovGrid');
+function openOverview() {
+  ovGrid.innerHTML = '';
+  slides.forEach((s, i) => {
+    const b = el('button', 'ov-item' + (i === cur ? ' cur' : '')); b.type = 'button';
+    const th = el('div', 'ov-thumb'), c = s.cloneNode(true);
+    c.classList.add('is-active'); c.removeAttribute('aria-hidden'); c.querySelectorAll('[id]').forEach((x) => x.removeAttribute('id'));
+    th.append(c); b.append(th, el('div', 'ov-cap', `<b>${pad(i + 1)}</b><span>${s.dataset.title || ''}</span>`));
+    b.addEventListener('click', () => { ov.hidden = true; go(i); });
+    ovGrid.append(b);
+  });
+  ov.hidden = false;
+  requestAnimationFrame(() => $$('.ov-thumb', ovGrid).forEach((t) => { t.firstElementChild.style.transform = `scale(${t.clientWidth / 1600})`; }));
+  ($('.ov-item.cur', ovGrid) || ovGrid.firstElementChild).focus();
+}
+
+// ───────── 시작 ─────────
+function init() {
+  slides.forEach((s) => { const f = el('div', 'frame'); s.before(f); f.append(s); });
+  buildSections(); buildCells(); buildRaci(); buildFlows(); buildProg();
+  slides.forEach((s) => $$('[data-a]', s).forEach((x, i) => x.style.setProperty('--i', i)));
+  const layoutDependent = () => { $$('.chart-host').forEach((h) => { $$('svg.chart', h).forEach((x) => x.remove()); }); $$('.tl').forEach((h) => { h.innerHTML = ''; }); buildCharts(); buildTimelines(); drawEdges(); };
+  layoutDependent();
+  wireHoverLinks(); wireFocus(); wireViews(); resetFlows = wireFlowPlay();
+  const m = /^#s(\d+)$/.exec(location.hash);
+  go(m ? +m[1] - 1 : 0, { silent: true });
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { layoutDependent(); fit(); });
+  window.addEventListener('resize', fit);
+  $('#btnPrev').addEventListener('click', () => go(cur - 1));
+  $('#btnNext').addEventListener('click', () => go(cur + 1));
+  $('#btnOv').addEventListener('click', openOverview);
+  $('#ovClose').addEventListener('click', () => { ov.hidden = true; });
+  $('#btnFs').addEventListener('click', () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); } catch (e) { /* 미지원 */ } });
+  document.addEventListener('keydown', (e) => {
+    if (e.target.closest('input, textarea, select')) return;
+    if (!ov.hidden) { if (['Escape', 'g', 'G'].includes(e.key)) ov.hidden = true; return; }
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+    else if (e.key === 'Home') go(0); else if (e.key === 'End') go(N - 1);
+    else if (e.key === 'g' || e.key === 'G') openOverview();
+    else if (e.key === 'f' || e.key === 'F') $('#btnFs').click();
+  });
+  let sx = null;
+  vp.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+  vp.addEventListener('touchend', (e) => { if (sx == null || isList()) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1)); sx = null; });
+  window.__deck = { go, N, set: (i) => go(i, { silent: true }), openOverview };
+}
+init();
+})();
+</script>
+
